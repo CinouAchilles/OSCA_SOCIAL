@@ -4,7 +4,9 @@ import authRoutes from "./routes/auth.routes.js"
 import connectDB from "./db/connectDB.js";
 
 const app = express();
+app.use(express.json());
 dotenv.config();
+app.use(express.urlencoded({extended:true}));
 const port = process.env.PORT || 3000;
 
 
