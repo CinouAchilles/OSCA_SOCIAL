@@ -69,3 +69,70 @@ export const followUnfollowUser = async (req, res) => {
         return res.status(500).json({ error: error.message });
     }
 };
+
+
+// Function to get suggested users, enhancing logic with mutual followers, new users, etc.
+export const getSuggestedUsers = async (req, res) => {
+    try {
+        const currentUserId = req.user._id;
+
+        // Fetch the current user, excluding the password
+        const currentUser = await User.findById(currentUserId).select("following");
+
+        if (!currentUser) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        // Get the list of user IDs that the current user is following
+        const followingIds = currentUser.following;
+
+        // Suggested users query:
+        // Exclude the current user and those already followed by the user.
+        // Add a "limit" to avoid overwhelming the client with too many suggestions.
+        const suggestedUsers = await User.aggregate([
+            {
+                // Stage 1: Match users that are neither the current user nor followed by the current user
+                $match: {
+                    _id: { $nin: [...followingIds, currentUserId] },
+                },
+            },
+            {
+                // Stage 2: Optionally sort users by criteria (e.g., randomize or by mutual followers)
+                $addFields: {
+                    mutualFollowersCount: {
+                        $size: {
+                            $setIntersection: ["$followers", followingIds],
+                        },
+                    },
+                },
+            },
+            {
+                // Stage 3: Sort by the number of mutual followers (descending), and then randomize
+                $sort: {
+                    mutualFollowersCount: -1, // Prioritize users with more mutual followers
+                },
+            },
+            {
+                // Stage 4: Limit the number of suggestions to 10 (can adjust based on needs)
+                $limit: 10,
+            },
+            {
+                // Stage 5: Remove password field before returning
+                $project: {
+                    password: 0,
+                },
+            },
+        ]);
+
+        // If no suggested users were found
+        if (suggestedUsers.length === 0) {
+            return res.status(200).json({ message: "No suggestions at the moment." });
+        }
+
+        // Return the list of suggested users
+        res.status(200).json(suggestedUsers);
+    } catch (error) {
+        console.error("Error in user controllers:", error.message);
+        return res.status(500).json({ error: error.message });
+    }
+};
