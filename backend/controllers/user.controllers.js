@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import User from "../models/user.model.js";
+import Notification from "../models/notification.models.js";
 
 export const getUserProfile = async(req, res)=>{
     const {username} = req.params;
@@ -43,6 +44,7 @@ export const followUnfollowUser = async (req, res) => {
                 User.findByIdAndUpdate(id, { $pull: { followers: currentUserId } }),
                 User.findByIdAndUpdate(currentUserId, { $pull: { following: id } })
             ]);
+            
             return res.status(200).json({ message: "User unfollowed successfully" });
         } else {
             // Follow the user
@@ -51,8 +53,13 @@ export const followUnfollowUser = async (req, res) => {
                 User.findByIdAndUpdate(currentUserId, { $push: { following: id } })
             ]);
 
-            // Send notification to the user (implement the notification logic here)
-            // Example: sendNotification(userToModify._id, currentUserId);
+            const newNotification = new Notification({
+                type: "follow",
+                from: req.user._id,
+                to: userToModify._id,
+                content: `${currentUser.username} followed you`,
+            });
+            await newNotification.save();
 
             return res.status(200).json({ message: "User followed successfully" });
         }
