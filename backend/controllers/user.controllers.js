@@ -165,7 +165,8 @@ export const updateUser = async (req, res) => {
             if (newPassword.length < 6) {
                 return res.status(400).json({ error: "New password must be at least 6 characters long!" });
             }
-
+            //before success u must check if the old password not = to new password ,,u can do it later on
+            
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(newPassword, salt);
             user.password = hashedPassword;
