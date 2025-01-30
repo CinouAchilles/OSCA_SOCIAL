@@ -7,6 +7,18 @@ import AlternateEmailIcon from "@mui/icons-material/AlternateEmail"; // Username
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import toast, { Toaster } from "react-hot-toast";
+import { Link } from "react-router-dom";
+
+
+// Sanitization function to prevent XSS attacks
+const sanitizeInput = (input) => {
+    return input
+      .replace(/</g, "&lt;") // Replace < with &lt;
+      .replace(/>/g, "&gt;") // Replace > with &gt;
+      .replace(/&/g, "&amp;") // Replace & with &amp;
+      .replace(/"/g, "&quot;") // Replace " with &quot;
+      .replace(/'/g, "&#x27;"); // Replace ' with &#x27;
+  };
 
 export default function SignUp() {
   const [isLoading, setIsLoading] = useState(false);
@@ -22,16 +34,24 @@ export default function SignUp() {
     e.preventDefault();
     setIsLoading(true);
 
+    // Sanitize form data
+    const sanitizedData = {
+      username: sanitizeInput(formData.username),
+      fullname: sanitizeInput(formData.fullname),
+      email: sanitizeInput(formData.email),
+      password: sanitizeInput(formData.password),
+    };
+
     // Validate form data
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const usernameRegex = /^[a-zA-Z0-9_]{3,16}$/;
     const fullnameRegex = /^[a-zA-Z]+ [a-zA-Z]+$/;
 
     if (
-      formData.username.trim() === "" ||
-      formData.fullname.trim() === "" ||
-      formData.email.trim() === "" ||
-      formData.password.trim() === ""
+      sanitizedData.username.trim() === "" ||
+      sanitizedData.fullname.trim() === "" ||
+      sanitizedData.email.trim() === "" ||
+      sanitizedData.password.trim() === ""
     ) {
       toast.error("Please fill all the fields", {
         style: {
@@ -43,7 +63,7 @@ export default function SignUp() {
       return;
     }
 
-    if (!usernameRegex.test(formData.username)) {
+    if (!usernameRegex.test(sanitizedData.username)) {
       toast.error(
         "Username must be 3-16 characters long and can only contain letters, numbers, and underscores",
         {
@@ -57,9 +77,9 @@ export default function SignUp() {
       return;
     }
 
-    if (!fullnameRegex.test(formData.fullname)) {
+    if (!fullnameRegex.test(sanitizedData.fullname)) {
       toast.error(
-        "Full name must contains two names and be 3-50 characters long and can only contain letters and spaces",
+        "Full name must contain two names and be 3-50 characters long and can only contain letters and spaces",
         {
           style: {
             background: "#333",
@@ -71,7 +91,7 @@ export default function SignUp() {
       return;
     }
 
-    if (!emailRegex.test(formData.email)) {
+    if (!emailRegex.test(sanitizedData.email)) {
       toast.error("Please enter a valid email address", {
         style: {
           background: "#333",
@@ -82,7 +102,7 @@ export default function SignUp() {
       return;
     }
 
-    if (formData.password.length < 8) {
+    if (sanitizedData.password.length < 8) {
       toast.error("Password must be at least 8 characters", {
         style: {
           background: "#333",
@@ -95,7 +115,7 @@ export default function SignUp() {
 
     // Simulate an API call
     setTimeout(() => {
-      console.log("Form submitted", formData);
+      console.log("Form submitted", sanitizedData);
       toast.success("Account created successfully", {
         style: {
           background: "#333",
@@ -251,7 +271,9 @@ export default function SignUp() {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full p-3 !mt-8 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transform hover:translate-y-[-4px] transition-all focus:scale-95"
+            className={`w-full p-3 !mt-8 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transform hover:translate-y-[-4px] transition-all focus:scale-95 ${
+              isLoading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
             disabled={isLoading}
           >
             {isLoading ? "Signing Up..." : "Sign Up"}
@@ -261,12 +283,12 @@ export default function SignUp() {
         {/* Login Link */}
         <p className="text-center text-gray-400 text-sm mt-6">
           Already have an account?{" "}
-          <a
-            href="#"
+          <Link
+            to="/login"
             className="text-blue-400 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
           >
             Log in
-          </a>
+          </Link>
         </p>
       </div>
     </div>
