@@ -3,3 +3,37 @@
   background-clip: text;
   color: transparent;
 }
+/* Hide scrollbar for Chrome, Safari, and Edge */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for Firefox */
+.scrollbar-hide {
+  scrollbar-width: none;
+}
+/* Scrollbar Styling */
+.scrollbar-custom::-webkit-scrollbar {
+  width: 8px; /* Slim scrollbar */
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+  background: #1a1a1a; /* Dark background */
+  border-radius: 10px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background: #4a4a4a; /* Gray scrollbar */
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+  background: #787878; /* Lighter gray on hover */
+}
+
+/* Firefox scrollbar */
+.scrollbar-custom {
+  scrollbar-width: thin;
+  scrollbar-color: #4a4a4a #1a1a1a;
+}
