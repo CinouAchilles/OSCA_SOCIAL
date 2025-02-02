@@ -2,28 +2,28 @@ import Skeleton from "@mui/material/Skeleton";
 
 export default function RightPanelSkeleton() {
   return (
-    <div className="w-full hidden lg:block md:w-1/5 p-4">
+    <div className="w-full hidden lg:block md:w-1/5 p-3">
       {/* Skeleton for Title */}
-      <h2 className="text-xl font-bold mb-4">Who to follow</h2>
+      <h2 className="text-xl font-semibold mb-3">Who to follow</h2>
 
       {/* Skeleton for Suggested Users */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         {[...Array(3)].map((_, index) => (
-          <div key={index} className="p-4 bg-gray-800 rounded-lg">
+          <div key={index} className="p-3 bg-gray-800 rounded-md">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2">
                 {/* Skeleton for Profile Image */}
-                <Skeleton variant="circular" width={40} height={40} />
+                <Skeleton variant="circular" width={36} height={36} />
 
                 {/* Skeleton for User Info */}
                 <div>
-                  <Skeleton variant="text" width={100} height={20} />
-                  <Skeleton variant="text" width={80} height={15} />
+                  <Skeleton variant="text" width={90} height={18} />
+                  <Skeleton variant="text" width={60} height={14} />
                 </div>
               </div>
 
               {/* Skeleton for Follow Button */}
-              <Skeleton variant="rounded" width={80} height={35} />
+              <Skeleton variant="rounded" width={70} height={30} />
             </div>
           </div>
         ))}

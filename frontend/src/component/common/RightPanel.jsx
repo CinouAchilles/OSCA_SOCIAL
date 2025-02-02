@@ -36,24 +36,24 @@ export default function RightPanel() {
   }
 
   return (
-    <div className="w-full hidden lg:block md:w-1/5 p-4">
-      <h2 className="text-xl font-bold mb-4">Who to follow</h2>
-      <div className="space-y-4">
+    <div className="w-full hidden lg:block md:w-1/5 p-3">
+      <h2 className="text-xl font-semibold mb-3">Who to follow</h2>
+      <div className="space-y-3">
         {suggestedUsers.map((user) => (
-          <div key={user.id} className="p-4 bg-gray-800 rounded-lg">
+          <div key={user.id} className="p-3 bg-gray-800 rounded-md">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2">
                 <img
                   src={user.profilePic}
                   alt="Profile"
                   className="w-10 h-10 rounded-full"
                 />
                 <div>
-                  <div className="font-bold">{user.fullName}</div>
-                  <div className="text-gray-400">@{user.username}</div>
+                  <div className="text-md font-semibold">{user.fullName}</div>
+                  <div className="text-sm text-gray-400">@{user.username}</div>
                 </div>
               </div>
-              <button className="px-4 py-2 bg-[#787878] text-white font-semibold rounded-full hover:bg-blue-600 transition transform hover:scale-105 focus:scale-95">
+              <button className="px-3 py-1.5 bg-[#787878] text-white text-sm font-medium rounded-full hover:bg-blue-600 transition transform hover:scale-105 focus:scale-95">
                 Follow
               </button>
             </div>

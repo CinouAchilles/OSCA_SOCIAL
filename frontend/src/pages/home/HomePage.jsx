@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { FaBell, FaBookmark, FaHashtag, FaHome, FaUser } from "react-icons/fa";
 import Sidebar from "../../component/common/Sidebar";
 import RightPanel from "../../component/common/RightPanel";
 import PostTweet from "./PostTweet";
 import TweetFeed from "../../component/common/TweetFeed";
 import Xsvg from "../../component/svgs/x";
+import SidebarPhone from "../../component/common/SidebarPhone";
 
 export default function HomePage() {
     const [tweets, setTweets] = useState([
@@ -44,7 +43,7 @@ export default function HomePage() {
       <Sidebar />
 
       {/* Main Feed */}
-      <div className="w-full md:w-4/5 lg:w-3/5 p-4 border-r border-gray-700 overflow-y-scroll h-screen scrollbar-custom">
+      <div className="flex-1 md:w-4/5 lg:w-3/5 p-4 border-r border-gray-700 overflow-y-scroll h-screen scrollbar-custom">
         <div className="flex md:hidden mb-5 gap-2 items-center">
           <Xsvg className="w-12 h-12 text-blue-400" />
           <h1 className="text-2xl font-bold ">Home</h1>
@@ -64,28 +63,7 @@ export default function HomePage() {
       <RightPanel />
 
       {/* Mobile Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 w-full bg-gray-800 border-t border-gray-700 md:hidden">
-        <div className="flex justify-around p-2">
-          <Link to="/home" className="p-2 hover:bg-gray-700 rounded-lg">
-            <FaHome className="w-6 h-6" />
-          </Link>
-          <Link to="/explore" className="p-2 hover:bg-gray-700 rounded-lg">
-            <FaHashtag className="w-6 h-6" />
-          </Link>
-          <Link
-            to="/notifications"
-            className="p-2 hover:bg-gray-700 rounded-lg"
-          >
-            <FaBell className="w-6 h-6" />
-          </Link>
-          <Link to="/bookmarks" className="p-2 hover:bg-gray-700 rounded-lg">
-            <FaBookmark className="w-6 h-6" />
-          </Link>
-          <Link to="/profile" className="p-2 hover:bg-gray-700 rounded-lg">
-            <FaUser className="w-6 h-6" />
-          </Link>
-        </div>
-      </div>
+      <SidebarPhone/>
     </div>
   );
 }
