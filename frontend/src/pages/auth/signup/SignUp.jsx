@@ -8,17 +8,17 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import toast, { Toaster } from "react-hot-toast";
 import { Link } from "react-router-dom";
-
+import { useMutation } from "@tanstack/react-query";
 
 // Sanitization function to prevent XSS attacks
 const sanitizeInput = (input) => {
-    return input
-      .replace(/</g, "&lt;") // Replace < with &lt;
-      .replace(/>/g, "&gt;") // Replace > with &gt;
-      .replace(/&/g, "&amp;") // Replace & with &amp;
-      .replace(/"/g, "&quot;") // Replace " with &quot;
-      .replace(/'/g, "&#x27;"); // Replace ' with &#x27;
-  };
+  return input
+    .replace(/</g, "&lt;") // Replace < with &lt;
+    .replace(/>/g, "&gt;") // Replace > with &gt;
+    .replace(/&/g, "&amp;") // Replace & with &amp;
+    .replace(/"/g, "&quot;") // Replace " with &quot;
+    .replace(/'/g, "&#x27;"); // Replace ' with &#x27;
+};
 
 export default function SignUp() {
   const [isLoading, setIsLoading] = useState(false);
@@ -30,14 +30,56 @@ export default function SignUp() {
     password: "",
   });
 
+  const { mutate, isError, isPending, error } = useMutation({
+    mutationFn: async (userData) => {
+      const res = await fetch("http://localhost:3000/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
+
+      let data;
+      try {
+        data = await res.json();
+      } catch (error) {
+        throw new Error("Invalid JSON response from server");
+      }
+
+      if (!res.ok) {
+        throw new Error(data?.error || data?.message || "Something went wrong");
+      }
+      
+
+      return data;
+    },
+    onSuccess: () => {
+      toast.success("Account created successfully!", {
+        style: { background: "#333", color: "#fff" },
+      });
+      setFormData({
+        username: "",
+        fullname: "",
+        email: "",
+        password: "",
+      });
+    },
+    onError: (error) => {
+      toast.error(`Error signing up: ${error.message}`, {
+        style: { background: "#333", color: "#fff" },
+      });
+    },
+  });
+
   const submitForm = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
     // Sanitize form data
     const sanitizedData = {
-      username: sanitizeInput(formData.username),
       fullname: sanitizeInput(formData.fullname),
+      username: sanitizeInput(formData.username),
       email: sanitizeInput(formData.email),
       password: sanitizeInput(formData.password),
     };
@@ -45,7 +87,7 @@ export default function SignUp() {
     // Validate form data
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const usernameRegex = /^[a-zA-Z0-9_]{3,16}$/;
-    const fullnameRegex = /^[a-zA-Z]+ [a-zA-Z]+$/;
+    const fullnameRegex = /^[a-zA-Z]+(?: [a-zA-Z]+)+$/;
 
     if (
       sanitizedData.username.trim() === "" ||
@@ -113,23 +155,15 @@ export default function SignUp() {
       return;
     }
 
-    // Simulate an API call
-    setTimeout(() => {
-      console.log("Form submitted", sanitizedData);
-      toast.success("Account created successfully", {
-        style: {
-          background: "#333",
-          color: "#fff",
-        },
-      });
-      setIsLoading(false);
-      setFormData({
-        username: "",
-        fullname: "",
-        email: "",
-        password: "",
-      });
-    }, 2000);
+    console.log("Form submitted", sanitizedData);
+    mutate(sanitizedData, {
+      onSuccess: () => {
+        setIsLoading(false);
+      },
+      onError: () => {
+        setIsLoading(false);
+      },
+    });
   };
 
   return (

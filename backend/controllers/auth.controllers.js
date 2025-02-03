@@ -24,10 +24,10 @@ export const signup = async (req, res) => {
     if (existingEmail) {
       return res.status(400).json({ error: "Email already taken" });
     }
-    if (password.length < 6) {
+    if (password.length < 8) {
       return res
         .status(400)
-        .json({ message: "Password must be at least 6 characters long" });
+        .json({ message: "Password must be at least 8 characters long" });
     }
 
     const salt = await bcrypt.genSalt(10);

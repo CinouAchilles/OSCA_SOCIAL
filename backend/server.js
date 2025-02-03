@@ -9,10 +9,11 @@ import notificationsRoutes from "./routes/notification.routes.js"
 
 import connectDB from "./db/connectDB.js";
 import cookieParser from "cookie-parser"
+import cors from "cors"
 
+dotenv.config();
 const app = express();
 app.use(express.json());
-dotenv.config();
 app.use(express.urlencoded({extended:true}));
 app.use(cookieParser());
 cloudinary.config({
@@ -21,6 +22,14 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 })
 
+app.use(
+    cors({
+      origin: "*", // Allow all origins for testing
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+      credentials: true, // Allow cookies
+    })
+  );
 
 const port = process.env.PORT || 3000;
 
