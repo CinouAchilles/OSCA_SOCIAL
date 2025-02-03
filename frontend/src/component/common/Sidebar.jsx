@@ -78,9 +78,9 @@ export default function Sidebar() {
       </nav>
 
       {/* Tweet Button */}
-      <button className="w-full p-3 mt-4 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition">
+      {/* <button className="w-full p-3 mt-4 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition">
         Tweet
-      </button>
+      </button> */}
 
       {/* Push Profile Section to Bottom */}
       <div className="mt-auto">
