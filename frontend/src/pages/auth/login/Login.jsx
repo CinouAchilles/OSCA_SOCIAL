@@ -5,7 +5,8 @@ import LockIcon from "@mui/icons-material/Lock"; // Lock icon
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import toast, { Toaster } from "react-hot-toast";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 
 // Sanitization function to prevent XSS attacks
 const sanitizeInput = (input) => {
@@ -19,13 +20,50 @@ const sanitizeInput = (input) => {
 
 //todo ,, when someone login next time when he try to login he will find hes account ready in corner of the page and just modify the logo of x put it in form
 
-
 export default function Login() {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+  });
+  const queryClient = useQueryClient()
+
+  const { mutate  } = useMutation({
+    mutationFn: async (userData) => {
+      setIsLoading(true); // Set loading state before request
+      try {
+        const res = await fetch("http://localhost:3000/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(userData),
+          credentials: "include",
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || "Something went wrong");
+        }
+      } catch (error) {
+        throw new Error(error.message || "Network error");
+      }
+    },
+    onSuccess: () => {
+      setFormData({ email: "", password: "" });
+      // navigate("/"); // Uncomment to navigate after login
+      queryClient.invalidateQueries({queryKey: ["authUser"]})
+
+      setIsLoading(false);
+    },
+    onError: () => {
+      setIsLoading(false);
+    },
+    onSettled: () => {
+      setIsLoading(false);
+    },
   });
 
   const submitForm = async (e) => {
@@ -41,7 +79,10 @@ export default function Login() {
     // Validate form data
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-    if (sanitizedData.email.trim() === "" || sanitizedData.password.trim() === "") {
+    if (
+      sanitizedData.email.trim() === "" ||
+      sanitizedData.password.trim() === ""
+    ) {
       toast.error("Please fill all the fields", {
         style: {
           background: "#333",
@@ -73,36 +114,31 @@ export default function Login() {
       setIsLoading(false);
       return;
     }
+    console.log("Logging in...");
 
-    // Simulate an API call
-    toast.promise(
-      new Promise((resolve, _reject) => {
-        setTimeout(() => {
-          console.log("Login successful", sanitizedData);
-          resolve();
-        }, 2000);
-      }),
-      {
-        loading: 'Logging in...',
-        success: <b>Logged in successfully!</b>,
-        error: <b>Could not login...</b>,
-      },
-      {
-        style: {
-          background: "#333",
-          color: "#fff",
+    toast
+      .promise(
+        new Promise((resolve, reject) => {
+          mutate(sanitizedData, {
+            onSuccess: (data) => resolve(data),
+            onError: (error) => reject(error),
+          });
+        }),
+        {
+          loading: "Logging in...",
+          success: <b>Logged in successfully!</b>,
+          error: (error) => <b>{error.message || "Something went wrong"}.</b>,
         },
-      }
-    ).then(() => {
-      setIsLoading(false);
-      setFormData({
-        email: "",
-        password: "",
+        {
+          style: { background: "#333", color: "#fff" },
+        }
+      )
+      .finally(() => {
+        setIsLoading(false);
       });
-    }).catch(() => {
-      setIsLoading(false);
-    });
   };
+  //tomorrow inchallah modify the code to save the token in the local storage and redirect the user to the dashboard and finisht the logout functionality 
+
 
   return (
     <div className="flex min-h-screen items-center justify-evenly bg-gray-900 text-white p-3 md:p-6 dark:bg-gray-950">

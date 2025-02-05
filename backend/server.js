@@ -24,10 +24,10 @@ cloudinary.config({
 
 app.use(
     cors({
-      origin: "*", // Allow all origins for testing
+      origin: "http://localhost:5173", // Allow all origins for testing
       methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
       allowedHeaders: ["Content-Type", "Authorization"],
-      credentials: true, // Allow cookies
+      credentials: true,
     })
   );
 
