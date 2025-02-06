@@ -9,7 +9,7 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import toast, { Toaster } from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
-
+import { useNavigate } from "react-router-dom";
 // Sanitization function to prevent XSS attacks
 const sanitizeInput = (input) => {
   return input
@@ -21,6 +21,7 @@ const sanitizeInput = (input) => {
 };
 
 export default function SignUp() {
+  const navigate = useNavigate(); // Initialize navigate
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -50,7 +51,6 @@ export default function SignUp() {
       if (!res.ok) {
         throw new Error(data?.error || data?.message || "Something went wrong");
       }
-      
 
       return data;
     },
@@ -64,7 +64,10 @@ export default function SignUp() {
         email: "",
         password: "",
       });
+      // Redirect to login page using navigate
+      navigate("/login")
     },
+
     onError: (error) => {
       toast.error(`Error signing up: ${error.message}`, {
         style: { background: "#333", color: "#fff" },

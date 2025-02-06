@@ -4,10 +4,10 @@ import toast from "react-hot-toast";
 export default function CommentButton({ tweet, onOpenComment , CommentCount}) {
   const handleComment = () => {
     onOpenComment(tweet);
-    toast("Comment feature coming soon!", {
-      icon: "💬",
-      style: { background: "#333", color: "#fff" },
-    });
+    // toast("Comment feature coming soon!", {
+    //   icon: "💬",
+    //   style: { background: "#333", color: "#fff" },
+    // });
   };
 
   return (
