@@ -6,9 +6,11 @@ import TweetFeed from "../../component/common/TweetFeed";
 import Xsvg from "../../component/svgs/x";
 import SidebarPhone from "../../component/common/SidebarPhone";
 import { useQuery } from "@tanstack/react-query";
+import { CircularProgress } from "@mui/material";
 
 export default function HomePage() {
   const [feedType, setFeedType] = useState("forYou");
+  const [tweets, setTweets] = useState([]);
 
   const getEndPoint = (feedType) => {
     switch (feedType) {
@@ -51,13 +53,13 @@ export default function HomePage() {
     },
   });
 
-  const [tweets, setTweets] = useState([]);
-
   useEffect(() => {
     if (postsfetched) {
       const formattedPosts = postsfetched.map((post) => ({
         id: post._id,
-        user: post.user.username,
+        userId: post.user._id,
+        username: post.user.username,
+        fullname: post.user.fullname,
         content: post.text,
         images: [], // Assuming no images are provided in the API response
         likes: post.likes,
@@ -79,8 +81,9 @@ export default function HomePage() {
     setTweets([newTweet, ...tweets]);
   };
 
-  const handleDeleteTweet = (tweetId) => {
+  let handleDeleteTweet = (tweetId) => {
     setTweets((prev) => prev.filter((tweet) => tweet.id !== tweetId));
+    console.log("Tweet to delete:", tweetId);
   };
 
   return (
@@ -127,8 +130,13 @@ export default function HomePage() {
             <div className="flex justify-center items-center h-full">
               <p>Error loading tweets. Please try again.</p>
             </div>
+          ) : isLoading ? (
+            <div className="flex justify-center items-center h-full">
+              {/* MUI Loader (CircularProgress) */}
+              <CircularProgress color="primary" />
+            </div>
           ) : tweets.length > 0 ? (
-            <TweetFeed tweets={tweets} />
+            <TweetFeed tweets={tweets} onDeleteTweet={handleDeleteTweet} />
           ) : (
             <div className="flex justify-center items-center h-full">
               <p>No tweets available.</p>

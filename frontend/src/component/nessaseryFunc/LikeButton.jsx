@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import toast from "react-hot-toast";
 
-export default function LikeButton({ tweetId, initialLikes = 0 }) {
+export default function LikeButton({ tweetId, initialLikes = 0 , LikesCount }) {
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(initialLikes);
 
@@ -25,7 +25,7 @@ export default function LikeButton({ tweetId, initialLikes = 0 }) {
       ) : (
         <FaRegHeart className="w-4 h-4 md:w-5 md:h-5" />
       )}
-      <span className="text-sm md:text-base">{likeCount}</span>
+      <span className="text-sm md:text-base">{LikesCount}</span>
     </button>
   );
 }

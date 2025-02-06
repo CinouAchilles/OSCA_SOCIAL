@@ -7,11 +7,14 @@ import TweetImage from "../nessaseryFunc/TweetImage";
 import LikeButton from "../nessaseryFunc/LikeButton";
 import ImageModal from "./ImageModal";
 import { formatDistanceToNowStrict } from "date-fns";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 export default function TweetFeed({ tweets = [], onDeleteTweet }) {
   const [savedTweets, setSavedTweets] = useState({});
   const [selectedTweet, setSelectedTweet] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
+
+  const { data: authUser } = useQuery({ queryKey: ["authUser"] });
 
   const handleSave = (tweetId) => {
     setSavedTweets((prev) => ({
@@ -26,13 +29,42 @@ export default function TweetFeed({ tweets = [], onDeleteTweet }) {
     );
   };
 
-  const handleDelete = (tweetId) => {
-    if (window.confirm("Are you sure you want to delete this tweet?")) {
-      onDeleteTweet(tweetId);
+
+  const { mutate: deletePost } = useMutation({
+    mutationFn: async (idToDelete) => {
+      try {
+        const res = await fetch(`http://localhost:3000/api/posts/${idToDelete}`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || "Network error");
+        }
+        return data;
+      } catch (error) {
+        throw new Error(error.message || "Network error");
+      }
+    },
+    onSuccess: (data, idToDelete) => {
       toast.success("Tweet deleted successfully", {
         style: { background: "#333", color: "#fff" },
       });
-    }
+      // Call the onDeleteTweet callback after the deletion is successful
+      onDeleteTweet(idToDelete); // Pass the tweet ID to the parent
+    },
+    onError: (error) => {
+      toast.error(`Error: ${error.message}`, {
+        style: { background: "#333", color: "#fff" },
+      });
+    },
+  });
+
+  const handleDelete = (tweetId) => {
+    deletePost(tweetId)
   };
 
   return (
@@ -51,9 +83,9 @@ export default function TweetFeed({ tweets = [], onDeleteTweet }) {
             <div className="flex-1">
               <div className="flex mb-5 md:mb-2 md:flex-row md:items-center space-x-2 space-y-1 md:space-y-0 md:space-x-2">
                 <span className="font-bold text-base md:text-lg hover:underline cursor-pointer">
-                  {tweet.user}
+                  {tweet.fullname}
                 </span>
-                <span className="text-gray-400 text-sm">@{tweet.user}</span>
+                <span className="text-gray-400 text-sm">@{tweet.username}</span>
                 <span className="text-gray-400 text-sm">
                   · {formatDistanceToNowStrict(new Date(tweet.createdAt))} ago
                 </span>
@@ -66,8 +98,8 @@ export default function TweetFeed({ tweets = [], onDeleteTweet }) {
               <TweetImage image={tweet.image} onImageClick={setSelectedImage} />
 
               <div className="flex items-center justify-between mt-3 space-x-2 md:space-x-4">
-                <LikeButton tweetId={tweet.id} />
-                <CommentButton tweet={tweet} onOpenComment={setSelectedTweet} />
+                <LikeButton tweetId={tweet.id} LikesCount={tweet.likes.length}/>
+                <CommentButton tweet={tweet} onOpenComment={setSelectedTweet} CommentCount={tweet.comments.length} />
 
                 <button
                   onClick={() => handleSave(tweet.id)}
@@ -81,13 +113,15 @@ export default function TweetFeed({ tweets = [], onDeleteTweet }) {
                   <span className="text-sm md:text-base">Save</span>
                 </button>
 
-                <button
-                  onClick={() => handleDelete(tweet.id)}
-                  className="flex items-center space-x-1 md:space-x-2 text-gray-400 hover:text-red-600 transition"
-                >
-                  <FaTrash className="w-4 h-4 md:w-5 md:h-5" />
-                  <span className="text-sm md:text-base">Delete</span>
-                </button>
+                {authUser && authUser._id == tweet.userId && (
+                  <button
+                    onClick={() => handleDelete(tweet.id)}
+                    className="flex items-center space-x-1 md:space-x-2 text-gray-400 hover:text-red-600 transition"
+                  >
+                    <FaTrash className="w-4 h-4 md:w-5 md:h-5" />
+                    <span className="text-sm md:text-base">Delete</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>

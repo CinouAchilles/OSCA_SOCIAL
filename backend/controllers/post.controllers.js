@@ -159,7 +159,7 @@ export const likeUnlikePost = async (req, res) => {
 export const getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find()
-      .populate("user", "username avatar")
+      .populate("user", "username fullname")
       .populate("comments.user", "username avatar")
       .sort({ createdAt: -1 });
 
@@ -212,7 +212,10 @@ export const getFollowingPosts = async (req ,res)=>{
 
         const following = user.following;
         const followingPosts = await Post.find({user:{$in:following}})
-        .sort({createdAt: -1})
+        .sort({ createdAt: -1 })
+        .populate("user", "username fullname") // Populate the 'user' field with the 'username'
+        .populate("likes", "_id") // Populate the 'likes' field with user IDs (if needed)
+        .populate("comments.user", "username"); // Populate the 'user' field in comments with the 'username'
 
         res.status(200).json(followingPosts);
     } catch (error) {
