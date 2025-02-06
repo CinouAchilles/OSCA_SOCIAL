@@ -9,7 +9,7 @@ export default function SidebarPhone() {
     { path: "/explore", icon: <FaHashtag className="w-6 h-6" /> },
     { path: "/notifications", icon: <FaBell className="w-6 h-6" /> },
     { path: "/bookmarks", icon: <FaBookmark className="w-6 h-6" /> },
-    { path: "/profile", icon: <FaUser className="w-6 h-6" /> },
+    { path: "/profile/JohnDoe", icon: <FaUser className="w-6 h-6" /> },
   ];
 
   return (

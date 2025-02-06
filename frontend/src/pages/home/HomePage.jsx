@@ -1,26 +1,73 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "../../component/common/Sidebar";
 import RightPanel from "../../component/common/RightPanel";
 import PostTweet from "./PostTweet";
 import TweetFeed from "../../component/common/TweetFeed";
 import Xsvg from "../../component/svgs/x";
 import SidebarPhone from "../../component/common/SidebarPhone";
+import { useQuery } from "@tanstack/react-query";
 
 export default function HomePage() {
-    const [tweets, setTweets] = useState([
-        {
-          id: 1,
-          user: "JohnDoe",
-          content: "This is my first tweet!",
-          images: [], // Add images here
-        },
-        {
-          id: 2,
-          user: "JaneDoe",
-          content: "Hello Twitter clone!",
-          images: [], // Add images here
-        },
-      ]);
+  const [feedType, setFeedType] = useState("forYou");
+
+  const getEndPoint = (feedType) => {
+    switch (feedType) {
+      case "forYou":
+        return "http://localhost:3000/api/posts/all";
+      case "following":
+        return "http://localhost:3000/api/posts/followingposts";
+      default:
+        return "http://localhost:3000/api/posts/all";
+    }
+  };
+
+  const POST_ENDPOINT = getEndPoint(feedType);
+  const {
+    data: postsfetched,
+    isLoading,
+    isError,
+    refetch,
+    isRefetching,
+  } = useQuery({
+    queryKey: ["tweets", feedType],
+    queryFn: async () => {
+      try {
+        const res = await fetch(POST_ENDPOINT, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || "Something went wrong");
+        }
+        console.log(data);
+        return data;
+      } catch (error) {
+        throw new Error(error.message || "Network error");
+      }
+    },
+  });
+
+  const [tweets, setTweets] = useState([]);
+
+  useEffect(() => {
+    if (postsfetched) {
+      const formattedPosts = postsfetched.map((post) => ({
+        id: post._id,
+        user: post.user.username,
+        content: post.text,
+        images: [], // Assuming no images are provided in the API response
+        likes: post.likes,
+        comments: post.comments,
+        createdAt: post.createdAt,
+      }));
+
+      setTweets(formattedPosts); // Directly set the new fetched tweets
+    }
+  }, [postsfetched]);
 
   const handlePostTweet = (content, image) => {
     const newTweet = {
@@ -36,7 +83,6 @@ export default function HomePage() {
     setTweets((prev) => prev.filter((tweet) => tweet.id !== tweetId));
   };
 
-
   return (
     <div className="flex min-h-screen text-white">
       {/* Sidebar */}
@@ -51,11 +97,43 @@ export default function HomePage() {
         <h1 className="text-2xl font-bold mb-4 hidden md:block">Home</h1>
 
         {/* Post a Tweet */}
-        <PostTweet onPostTweet={handlePostTweet} onDeleteTweet={handleDeleteTweet} />
+        <PostTweet
+          onPostTweet={handlePostTweet}
+          onDeleteTweet={handleDeleteTweet}
+        />
+        {/* Bottom Navigation */}
+        <div className="bg-gray-800 border-t border-gray-700 flex justify-around p-2 gap-2 rounded-lg">
+          <button
+            className={`p-3 flex-1 text-center rounded-lg ${
+              feedType === "forYou" ? "text-blue-500" : "text-gray-400"
+            } hover:bg-gray-700`}
+            onClick={() => setFeedType("forYou")}
+          >
+            For You
+          </button>
+          <button
+            className={`p-3 flex-1 text-center rounded-lg ${
+              feedType === "following" ? "text-blue-500" : "text-gray-400"
+            } hover:bg-gray-700`}
+            onClick={() => setFeedType("following")}
+          >
+            Following
+          </button>
+        </div>
 
         {/* Tweet Feed (Scrolls) */}
         <div className="overflow-y-scroll scrollbar-hide mb-12 md:mb-0 ">
-          <TweetFeed tweets={tweets} />
+          {isError ? (
+            <div className="flex justify-center items-center h-full">
+              <p>Error loading tweets. Please try again.</p>
+            </div>
+          ) : tweets.length > 0 ? (
+            <TweetFeed tweets={tweets} />
+          ) : (
+            <div className="flex justify-center items-center h-full">
+              <p>No tweets available.</p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -63,7 +141,7 @@ export default function HomePage() {
       <RightPanel />
 
       {/* Mobile Bottom Navigation */}
-      <SidebarPhone/>
+      <SidebarPhone />
     </div>
   );
 }

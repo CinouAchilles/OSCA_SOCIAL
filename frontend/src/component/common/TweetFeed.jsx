@@ -1,17 +1,14 @@
 import { useState } from "react";
-import {
-  FaUser,
-  FaTrash,
-  FaBookmark,
-} from "react-icons/fa";
+import { FaUser, FaTrash, FaBookmark } from "react-icons/fa";
 import toast, { Toaster } from "react-hot-toast";
 import CommentDialog from "./CommentDialog";
 import CommentButton from "../nessaseryFunc/CommentButton";
 import TweetImage from "../nessaseryFunc/TweetImage";
 import LikeButton from "../nessaseryFunc/LikeButton";
 import ImageModal from "./ImageModal";
+import { formatDistanceToNowStrict } from "date-fns";
 
-export default function TweetFeed({ tweets, onDeleteTweet }) {
+export default function TweetFeed({ tweets = [], onDeleteTweet }) {
   const [savedTweets, setSavedTweets] = useState({});
   const [selectedTweet, setSelectedTweet] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -57,7 +54,9 @@ export default function TweetFeed({ tweets, onDeleteTweet }) {
                   {tweet.user}
                 </span>
                 <span className="text-gray-400 text-sm">@{tweet.user}</span>
-                <span className="text-gray-400 text-sm">· 2h</span>
+                <span className="text-gray-400 text-sm">
+                  · {formatDistanceToNowStrict(new Date(tweet.createdAt))} ago
+                </span>
               </div>
 
               <div className="text-gray-200 mt-1 text-sm md:text-base">
@@ -104,7 +103,10 @@ export default function TweetFeed({ tweets, onDeleteTweet }) {
       )}
 
       {selectedImage && (
-        <ImageModal imageUrl={selectedImage} onClose={() => setSelectedImage(null)} />
+        <ImageModal
+          imageUrl={selectedImage}
+          onClose={() => setSelectedImage(null)}
+        />
       )}
     </div>
   );

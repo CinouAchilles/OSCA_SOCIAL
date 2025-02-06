@@ -79,7 +79,7 @@ export default function Sidebar() {
       label: "Bookmarks",
     },
     {
-      path: "/profile",
+      path: "/profile/JohnDoe",
       icon: <FaUser className="w-6 h-6" />,
       label: "Profile",
     },
