@@ -34,13 +34,13 @@ export default function ImageModal({ imageUrl, onClose }) {
         <img
           src={imageUrl}
           alt="Full Screen"
-          className="max-w-full max-h-full object-contain rounded-lg shadow-2xl border-4 border-white"
+          className="max-w-full max-h-full lg:w-10/12 object-contain rounded-lg shadow-2xl border-4 border-white"
         />
 
         {/* Close Button inside the Image */}
         <IconButton
           onClick={onClose}
-          className="absolute top-2 right-3 z-10"
+          className="absolute top-2 lg:top-20 right-3 z-10"
           sx={{
             position: "absolute",
             color: "grey", 

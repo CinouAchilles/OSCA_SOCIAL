@@ -8,6 +8,7 @@ import NotificationsPage from "./pages/notification/NotificationsPage";
 import ProfilePage from "./pages/profile/Profile";
 import { useQuery } from "@tanstack/react-query";
 import CircularProgress from "@mui/material/CircularProgress";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   const { data:authUser, isLoading, error, isError } = useQuery({
@@ -47,6 +48,7 @@ function App() {
 
   return (
     <div>
+      <Toaster/>
       <Routes>
         <Route path="/" element={authUser ?  <HomePage /> : <Navigate to="login"/>} />
         <Route path="/login" element={!authUser ? <Login /> : <Navigate to="/"/>} />

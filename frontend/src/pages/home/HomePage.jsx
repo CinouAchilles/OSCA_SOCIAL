@@ -61,7 +61,7 @@ export default function HomePage() {
         username: post.user.username,
         fullname: post.user.fullname,
         content: post.text,
-        images: [], // Assuming no images are provided in the API response
+        images: post.img, // Assuming no images are provided in the API response
         likes: post.likes,
         comments: post.comments,
         createdAt: post.createdAt,

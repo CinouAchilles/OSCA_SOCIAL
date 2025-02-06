@@ -4,6 +4,8 @@ import { FaImage } from "react-icons/fa";
 import { BsEmojiSmile } from "react-icons/bs";
 import Picker from "@emoji-mart/react";
 import emojiData from "@emoji-mart/data";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 export default function PostTweet({ onPostTweet }) {
   const [tweet, setTweet] = useState("");
@@ -12,24 +14,71 @@ export default function PostTweet({ onPostTweet }) {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const characterLimit = 1000; // Max characters
 
+  const {data:authUser} = useQuery({queryKey: ["authUser"]});
+  const queryClient = useQueryClient()
+
+  const {mutate:createPost , isPending} = useMutation({
+    mutationFn: async({text , img})=>{
+        try {
+          const res = await fetch("http://localhost:3000/api/posts/create" , {
+            method: "POST",
+            headers:{
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({text , img}),
+            credentials: "include",
+          })
+
+          const data = await res.json();
+          if(!res.ok){
+            throw new Error(data.error || "Something went wrong");
+          }
+          console.log("the created data: ", data)
+          return data;
+        } catch (error) {
+          throw new Error(error.message || "Network Error");
+        }
+    },
+    onSuccess: ()=>{
+      toast.success("Post created successfully", {
+        style: { background: "#333", color: "#fff" },
+      })
+      queryClient.invalidateQueries({queryKey: ["tweets"]});
+      setTweet("")
+      setImage(null);
+      setImagePreview(null);
+      
+    },
+    onError:(error)=>{
+      toast.error(`Error: ${error.message}`, {
+        style: { background: "#333", color: "#fff" },
+      })
+    }
+  })
+
+
+
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setImage(file);
-      setImagePreview(URL.createObjectURL(file));
-    }
+		if (file) {
+			const reader = new FileReader();
+			reader.onload = () => {
+				setImage(reader.result);
+			};
+			reader.readAsDataURL(file);
+		}
+    setImagePreview(URL.createObjectURL(file));
   };
 
-  const handlePostTweet = () => {
-    if (tweet.trim() === "" && !image) {
-      alert("Tweet cannot be empty!");
+  const handlePostTweet = (e) => {
+    e.preventDefault();
+    if (tweet.trim() == "" && !image) {
+      toast("Tweet cannot be empty!",{
+        style: { background: "#333", color: "#fff" },
+      });
       return;
     }
-
-    onPostTweet(tweet, image);
-    setTweet("");
-    setImage(null);
-    setImagePreview(null);
+    createPost({ text: tweet, img: image });
   };
 
   const handleEmojiSelect = (emoji) => {
@@ -111,7 +160,7 @@ export default function PostTweet({ onPostTweet }) {
 
         {/* Tweet Button */}
         <button
-          onClick={handlePostTweet}
+          onClick={(e)=>{handlePostTweet(e)}}
           className={`flex items-center space-x-2 px-4 py-2 text-white font-semibold rounded-lg transition ${
             tweet.length > characterLimit
               ? "bg-gray-500 cursor-not-allowed"
@@ -120,7 +169,7 @@ export default function PostTweet({ onPostTweet }) {
           disabled={tweet.length > characterLimit}
         >
           <AiOutlinePlus className="w-5 h-5" />
-          <span>Tweet</span>
+          <span>{isPending ? "Posting..." : "Tweet"}</span>
         </button>
       </div>
     </div>
