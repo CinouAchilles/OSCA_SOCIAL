@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Favorite, FavoriteBorder } from "@mui/icons-material"; // ✅ MUI Icons
 import { CircularProgress } from "@mui/material"; // ✅ Loading Indicator
 import toast from "react-hot-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -12,15 +11,19 @@ export default function LikeButton({ tweetId, LikesCount, checkliked }) {
 
   const { mutate: like, isPending } = useMutation({
     mutationFn: async () => {
-      const res = await fetch(`http://localhost:3000/api/posts/like/${tweetId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Something went wrong!");
-      return data;
+      try {
+        const res = await fetch(`http://localhost:3000/api/posts/like/${tweetId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        });
+  
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Something went wrong!");
+        return data;
+      } catch (error) {
+        throw new Error(error.message || "Network error")
+      }
     },
 
     onSuccess: (data) => {

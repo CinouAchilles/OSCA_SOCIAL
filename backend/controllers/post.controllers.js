@@ -81,7 +81,8 @@ export const commentOnPost = async (req, res) => {
       return res.status(400).json({ error: "Comment text is required" });
     if (!postId) return res.status(400).json({ error: "Post id is required" });
 
-    const post = await Post.findById(postId);
+    const post = await Post.findById(postId).populate("user", "username");
+
     if (!post) return res.status(404).json({ error: "Post not found" });
 
     const newComment = {
@@ -92,16 +93,15 @@ export const commentOnPost = async (req, res) => {
     post.comments.push(newComment);
     await post.save();
 
-    const notification = new Notification({
-      from: userId,
-      to: post.user,
-      type: "comment",
-      text,
-      content: `${req.user.username} commented on your post`,
-    });
-    await notification.save();
+    // Populate the newly added comment
+    const populatedPost = await Post.findById(postId)
+      .populate("comments.user", "username avatar") // ✅ Populate comment user details
+      .exec();
 
-    res.status(200).json(post);
+    const addedComment = populatedPost.comments[populatedPost.comments.length - 1];
+
+    // Send only the new comment, not the whole post
+    res.status(200).json({ comment: addedComment });
   } catch (error) {
     console.error("Error commenting on post: ", error);
     res.status(500).json({ error: "Internal server error" });
