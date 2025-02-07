@@ -98,7 +98,7 @@ export default function TweetFeed({ tweets = [], onDeleteTweet }) {
               <TweetImage image={tweet.images} onImageClick={setSelectedImage} />
 
               <div className="flex items-center justify-between mt-3 space-x-2 md:space-x-4">
-                <LikeButton tweetId={tweet.id} LikesCount={tweet.likes.length}/>
+                <LikeButton tweetId={tweet.id} LikesCount={tweet.likes.length} checkliked={tweet.likes.includes(authUser._id)}/>
                 <CommentButton tweet={tweet} onOpenComment={setSelectedTweet} CommentCount={tweet.comments.length} />
 
                 <button
