@@ -79,12 +79,12 @@ export default function CommentDialog({ open, onClose, tweet }) {
           </div>
           <div className="mt-2">
             <div className="text-gray-200">{tweet.content}</div>
-            {tweet.image && (
+            {tweet.images && (
               <img
                 src={
-                  typeof tweet.image === "string"
-                    ? tweet.image
-                    : URL.createObjectURL(tweet.image)
+                  typeof tweet.images === "string"
+                    ? tweet.images
+                    : URL.createObjectURL(tweet.images)
                 }
                 alt="Tweet"
                 className="w-full h-32 md:h-48 object-cover rounded-lg mt-2"

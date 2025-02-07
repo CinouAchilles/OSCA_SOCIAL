@@ -1,7 +1,9 @@
+import useFollow from "../../hooks/useFollow";
 import RightPanelSkeleton from "../skeletons/RightPanelSkeleton";
 import { useQuery } from "@tanstack/react-query";
 
 export default function RightPanel() {
+  const { follow, isPending } = useFollow();
   const {
     data: getSeggested,
     isLoading,
@@ -53,11 +55,19 @@ export default function RightPanel() {
                   />
                   <div>
                     <div className="text-md font-semibold">{user.fullname}</div>
-                    <div className="text-sm text-gray-400">@{user.username}</div>
+                    <div className="text-sm text-gray-400">
+                      @{user.username}
+                    </div>
                   </div>
                 </div>
-                <button className="px-3 py-1.5 bg-gray-700 text-white text-sm font-medium rounded-full hover:bg-blue-600 transition transform hover:scale-105 focus:scale-95">
-                  Follow
+                <button
+                  className="px-3 py-1.5 bg-gray-700 text-white text-sm font-medium rounded-full hover:bg-blue-600 transition transform hover:scale-105 focus:scale-95"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    follow(user._id);
+                  }}
+                >
+                  {isPending ? "Loading..." : "follow"}
                 </button>
               </div>
             </div>
