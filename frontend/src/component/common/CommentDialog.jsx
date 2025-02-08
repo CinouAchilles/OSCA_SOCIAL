@@ -54,7 +54,9 @@ export default function CommentDialog({ open, onClose, tweet }) {
     onSuccess: (data) => {
       if (!data.comment || !data.comment.user) {
         console.error("Invalid API response:", data);
-        toast.error("Failed to post comment.");
+        toast.error("Failed to post comment.",{
+          style: { background: "#333", color: "#fff" },
+        });
         return;
       }
 
