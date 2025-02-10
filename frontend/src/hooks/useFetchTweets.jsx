@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { data } from "react-router-dom";
 
 const getEndPoint = (feedType, username, userId) => {
@@ -8,11 +9,13 @@ const getEndPoint = (feedType, username, userId) => {
       case "Tweets":
         return `http://localhost:3000/api/posts/user/${username}`;
       case "Likes":
-        return `http://localhost:3000/api/posts/likes/${userId}`;
+        console.log("Likes worked with:" + username + " " + userId);
+        return `http://localhost:3000/api/posts/likes/${userId}`; // Use dynamic userId
       default:
         return `http://localhost:3000/api/posts/user/${username}`;
     }
   }
+  console.log("is this working");
   switch (feedType) {
     case "forYou":
       return "http://localhost:3000/api/posts/all";
@@ -26,7 +29,6 @@ const getEndPoint = (feedType, username, userId) => {
 const fetchTweets = async (feedType, username, userId) => {
   const POST_ENDPOINT = getEndPoint(feedType, username, userId);
 
-
   try {
     const res = await fetch(POST_ENDPOINT, {
       method: "GET",
@@ -39,7 +41,7 @@ const fetchTweets = async (feedType, username, userId) => {
     if (!res.ok) {
       throw new Error(data.error || "Something went wrong");
     }
-    console.log(data)
+    console.log(data);
     return data;
   } catch (error) {
     throw new Error(error.message || "Network error");

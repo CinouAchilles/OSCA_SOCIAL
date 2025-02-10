@@ -18,6 +18,7 @@ import { FaUser, FaTimes, FaRegHeart } from "react-icons/fa";
 import { formatDistanceToNowStrict } from "date-fns";
 import toast from "react-hot-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 
 export default function CommentDialog({ open, onClose, tweet }) {
   const queryClient = useQueryClient();
@@ -34,7 +35,7 @@ export default function CommentDialog({ open, onClose, tweet }) {
     mutationFn: async (commentText) => {
       try {
         const res = await fetch(
-          `http://localhost:3000/api/posts/comment/${tweet.id}`,
+          `http://localhost:3000/api/posts/comment/${tweet.id || tweet._id}`,
           {
             method: "POST",
             body: JSON.stringify({ text: commentText }),
@@ -54,7 +55,7 @@ export default function CommentDialog({ open, onClose, tweet }) {
     onSuccess: (data) => {
       if (!data.comment || !data.comment.user) {
         console.error("Invalid API response:", data);
-        toast.error("Failed to post comment.",{
+        toast.error("Failed to post comment.", {
           style: { background: "#333", color: "#fff" },
         });
         return;
@@ -97,7 +98,6 @@ export default function CommentDialog({ open, onClose, tweet }) {
       borderColor: "#3b82f6 !important",
     },
   };
-  
 
   return (
     <Dialog
@@ -127,8 +127,18 @@ export default function CommentDialog({ open, onClose, tweet }) {
             </Avatar>
             <div className="flex items-center gap-3">
               <div>
-                <div className="font-bold">{tweet.fullname || tweet.user.fullname}</div>
-                <div className="text-gray-400 text-sm">@{tweet.username || tweet.user.username}</div>
+                <Link
+                  to={`/profile/${
+                    tweet.username || tweet.user.username || "test"
+                  }`}
+                >
+                  <div className="font-bold hover:underline cursor-pointer">
+                    {tweet.fullname || tweet.user.fullname}
+                  </div>
+                </Link>
+                <div className="text-gray-400 text-sm">
+                  @{tweet.username || tweet.user.username}
+                </div>
               </div>
               <span className="text-gray-400 text-sm">
                 ·{" "}
@@ -139,13 +149,15 @@ export default function CommentDialog({ open, onClose, tweet }) {
               </span>
             </div>
           </div>
-          <div className="mt-2 text-gray-200">{tweet.content || tweet.text}</div>
-          {tweet.images && (
+          <div className="mt-2 text-gray-200">
+            {tweet.content || tweet.text}
+          </div>
+          {(tweet.images || tweet.img) && (
             <img
               src={
-                typeof tweet.images !== "object"
-                  ? tweet.images
-                  : URL.createObjectURL(tweet.images)
+                typeof (tweet.images || tweet.img) !== "object"
+                  ? tweet.images || tweet.img
+                  : URL.createObjectURL(tweet.images || tweet.img)
               }
               alt="Tweet"
               className="w-full h-32 md:h-48 object-cover rounded-lg mt-2"
@@ -174,9 +186,15 @@ export default function CommentDialog({ open, onClose, tweet }) {
                 <ListItemText
                   primary={
                     <div className="flex items-center space-x-2">
-                      <span className="font-bold text-white">
-                        {comment.user?.username || "Unknown User"}
-                      </span>
+                      <Link
+                        to={`/profile/${
+                          comment.username || comment.user?.username || "test"
+                        }`}
+                      >
+                        <span className="font-bold text-white hover:underline cursor-pointer">
+                          {comment.user?.username || "Unknown User"}
+                        </span>
+                      </Link>
                       <span className="text-gray-400 text-sm">
                         ·{" "}
                         {comment.createdAt

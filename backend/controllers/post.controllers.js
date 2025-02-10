@@ -187,8 +187,10 @@ export const getLikedPosts = async (req, res) => {
         if (!user) return res.status(404).json({ error: "User not found" });
 
         const likedPosts = await Post.find({ _id: { $in: user.likedPosts } })
-            .populate("user", "username avatar")
-            .populate("comments.user", "username avatar");
+          .populate("user", "username fullname")
+          .populate("comments.user", "username avatar")
+          .sort({ createdAt: -1 });
+            
 
         res.status(200).json(likedPosts);
     } catch (error) {

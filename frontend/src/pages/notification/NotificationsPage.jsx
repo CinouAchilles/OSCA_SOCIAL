@@ -7,6 +7,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import toast, { Toaster } from "react-hot-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNowStrict } from "date-fns";
+import { Link } from "react-router-dom";
 
 export default function NotificationsPage() {
   const queryClient = useQueryClient();
@@ -130,9 +131,16 @@ export default function NotificationsPage() {
                   {/* Notification Content */}
                   <div className="flex-1">
                     <div className="flex flex-col md:flex-row md:items-center space-y-1 md:space-y-0 md:space-x-2">
-                      <span className="font-bold text-base md:text-lg hover:underline cursor-pointer">
-                        @{notification.from.username}
-                      </span>
+                      
+                      <Link
+                        to={`/profile/${
+                          notification.from?.username || "/notifications"
+                        }`}
+                      >
+                        <span className="font-bold text-base md:text-lg hover:underline cursor-pointer">
+                          @{notification.from.username}
+                        </span>
+                      </Link>
                       <span className="text-gray-400 text-sm">
                         {notification.type === "like"
                           ? "liked your post"

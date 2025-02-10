@@ -7,7 +7,7 @@ import CommentDialog from "../../component/common/CommentDialog";
 import TweetFeed from "../../component/common/TweetFeed";
 import ImageModal from "../../component/common/ImageModal";
 import EditProfileDialog from "./EditProfileDialogComp";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import useFetchTweets from "../../hooks/useFetchTweets";
 
@@ -18,9 +18,18 @@ export default function ProfilePage() {
   const [feedType, setFeedType] = useState("Tweets"); // 🔹 Added missing state for tab selection
 
   const { username } = useParams();
+  const queryClient = useQueryClient();
+  const { data: authUser } = useQuery({
+    queryKey: ["authUser"],
+  });
 
   // Fetch user profile
-  const { data: user, isLoading, error } = useQuery({
+  const {
+    data: user,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
     queryKey: ["userProfile", username],
     queryFn: async () => {
       const res = await fetch(
@@ -37,21 +46,28 @@ export default function ProfilePage() {
       return res.json();
     },
   });
+  // console.log(user)
   // Fetch user tweets
-  const { data: tweets, isLoading: tweetsLoading, isError , refetch} = useFetchTweets(
-    feedType, 
-    username, 
-    user ? user._id : null // Ensure we only pass `user._id` when `user` exists
+  const {
+    data: tweets,
+    isLoading: tweetsLoading,
+    isError,
+    refetch: refetchTweets,
+  } = useFetchTweets(
+    feedType,
+    username,
+    user?._id // Ensure we only pass `user._id` when `user` exists
   );
-  
-  useEffect(()=>{
-    refetch()
-  },[feedType , refetch])
+
+  useEffect(() => {
+    refetch();
+    refetchTweets();
+  }, [feedType, username, refetch, refetchTweets]); // Added `username` to dependencies
 
   const handleEditProfile = () => {
     setOpenEditDialog(true);
   };
-
+  console.log(tweets);
   return (
     <div className="min-h-screen flex text-white">
       <Toaster />
@@ -76,13 +92,19 @@ export default function ProfilePage() {
             />
 
             <div className="ml-4">
-              <button 
-                className="px-4 py-2 text-sm font-medium bg-gray-700 hover:bg-gray-600 rounded-full flex items-center space-x-2 transition"
-                onClick={handleEditProfile}
-              >
-                <FaUserEdit className="w-4 h-4" />
-                <span>Edit Profile</span>
-              </button>
+              {authUser?._id == user?._id ? (
+                <button
+                  className="px-4 py-2 text-sm font-medium bg-gray-700 hover:bg-gray-600 rounded-full flex items-center space-x-2 transition"
+                  onClick={handleEditProfile}
+                >
+                  <FaUserEdit className="w-4 h-4" />
+                  <span>Edit Profile</span>
+                </button>
+              ) : (
+                <button className="px-4 py-2 text-sm font-medium bg-blue-500 hover:bg-blue-400 rounded-full flex items-center space-x-2 transition">
+                  <span>Follow</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -96,18 +118,31 @@ export default function ProfilePage() {
           ) : (
             <>
               <h1 className="text-2xl font-bold">{user?.fullname || "User"}</h1>
-              <p className="text-gray-400 text-sm">@{user?.username || "..."}</p>
-              <p className="text-gray-300 mt-2">{user?.bio || "No bio available"}</p>
+              <p className="text-gray-400 text-sm">
+                @{user?.username || "..."}
+              </p>
+              <p className="text-gray-300 mt-2">
+                {user?.bio || "No bio available"}
+              </p>
 
               <div className="flex space-x-6 mt-4 text-gray-400 text-sm">
                 <div>
-                  <span className="font-bold text-white">{user?.tweetsCount || 0}</span> Tweets
+                  <span className="font-bold text-white">
+                    {user?.tweetsCount || 0}
+                  </span>{" "}
+                  Tweets
                 </div>
                 <div>
-                  <span className="font-bold text-white">{user?.followers?.length || 0}</span> Followers
+                  <span className="font-bold text-white">
+                    {user?.followers?.length || 0}
+                  </span>{" "}
+                  Followers
                 </div>
                 <div>
-                  <span className="font-bold text-white">{user?.following?.length || 0}</span> Following
+                  <span className="font-bold text-white">
+                    {user?.following?.length || 0}
+                  </span>{" "}
+                  Following
                 </div>
               </div>
             </>
@@ -115,25 +150,35 @@ export default function ProfilePage() {
         </div>
 
         {/* Tweets Filter Tabs */}
-        <div className="p-4 md:p-8">
-          <div className="bg-gray-800 border-t border-gray-700 flex justify-around p-2 gap-2 rounded-lg">
-            <button
-              className={`p-3 flex-1 text-center rounded-lg ${
-                feedType === "Tweets" ? "text-blue-500" : "text-gray-400"
-              } hover:bg-gray-700`}
-              onClick={() => setFeedType("Tweets")}
-            >
-              Tweets
-            </button>
-            <button
-              className={`p-3 flex-1 text-center rounded-lg ${
-                feedType === "Likes" ? "text-blue-500" : "text-gray-400"
-              } hover:bg-gray-700`}
-              onClick={() => setFeedType("Likes")}
-            >
-              Likes
-            </button>
-          </div>
+        {/* <div className="p-4">
+          <h1>Tweets</h1>
+        </div> */}
+
+        <div className="p-4 md:p-8 md:pt-4">
+          {authUser._id === user?._id ? (
+            <div className="bg-gray-800 border-t border-gray-700 flex justify-around p-2 gap-2 rounded-lg">
+              <button
+                className={`p-3 flex-1 text-center rounded-lg ${
+                  feedType === "Tweets" ? "text-blue-500" : "text-gray-400"
+                } hover:bg-gray-700`}
+                onClick={() => setFeedType("Tweets")}
+              >
+                Tweets
+              </button>
+              <button
+                className={`p-3 flex-1 text-center rounded-lg ${
+                  feedType === "Likes" ? "text-blue-500" : "text-gray-400"
+                } hover:bg-gray-700`}
+                onClick={() => setFeedType("Likes")}
+              >
+                Likes
+              </button>
+            </div>
+          ) : (
+            <div className="">
+              <h2 className="text-xl font-bold mb-4">Tweets</h2>
+            </div>
+          )}
 
           {/* Tweets Section */}
           {tweetsLoading ? (

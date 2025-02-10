@@ -8,6 +8,7 @@ import LikeButton from "../nessaseryFunc/LikeButton";
 import ImageModal from "./ImageModal";
 import { formatDistanceToNowStrict } from "date-fns";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 
 export default function TweetFeed({ tweets = [], onDeleteTweet }) {
   const [savedTweets, setSavedTweets] = useState({});
@@ -33,17 +34,19 @@ export default function TweetFeed({ tweets = [], onDeleteTweet }) {
     });
   };
 
-
   const { mutate: deletePost } = useMutation({
     mutationFn: async (idToDelete) => {
       try {
-        const res = await fetch(`http://localhost:3000/api/posts/${idToDelete}`, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        });
+        const res = await fetch(
+          `http://localhost:3000/api/posts/${idToDelete}`,
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          }
+        );
         const data = await res.json();
         if (!res.ok) {
           throw new Error(data.error || "Network error");
@@ -68,8 +71,9 @@ export default function TweetFeed({ tweets = [], onDeleteTweet }) {
   });
 
   const handleDelete = (tweetId) => {
-    deletePost(tweetId)
+    deletePost(tweetId);
   };
+  // console.log(tweets)
 
   return (
     <div className="space-y-4">
@@ -83,13 +87,17 @@ export default function TweetFeed({ tweets = [], onDeleteTweet }) {
             <div className="w-10 h-10 md:w-12 md:h-12 bg-gray-700 rounded-full flex items-center justify-center flex-shrink-0">
               <FaUser className="w-5 h-5 md:w-6 md:h-6 text-gray-400" />
             </div>
-
+            {console.log(tweet)}
             <div className="flex-1">
               <div className="flex mb-5 md:mb-2 md:flex-row md:items-center space-x-2 space-y-1 md:space-y-0 md:space-x-2">
-                <span className="font-bold text-base md:text-lg hover:underline cursor-pointer">
-                  {tweet.fullname || tweet.user.fullname}
+                <Link to={`/profile/${tweet.user?.username || tweet?.username  || "test"}`}>
+                  <span className="font-bold text-base md:text-lg hover:underline cursor-pointer">
+                    {tweet.fullname || tweet.user.fullname}
+                  </span>
+                </Link>
+                <span className="text-gray-400 text-sm">
+                  @{tweet.username || tweet.user.username}
                 </span>
-                <span className="text-gray-400 text-sm">@{tweet.username || tweet.user.username}</span>
                 <span className="text-gray-400 text-sm">
                   · {formatDistanceToNowStrict(new Date(tweet.createdAt))} ago
                 </span>
@@ -99,11 +107,22 @@ export default function TweetFeed({ tweets = [], onDeleteTweet }) {
                 {tweet.content || tweet.text}
               </div>
 
-              <TweetImage image={tweet.images || tweet.img} onImageClick={setSelectedImage} />
+              <TweetImage
+                image={tweet.images || tweet.img}
+                onImageClick={setSelectedImage}
+              />
 
               <div className="flex items-center justify-between mt-3 space-x-2 md:space-x-4">
-                <LikeButton tweetId={tweet.id || tweet._id} LikesCount={tweet.likes.length} checkliked={tweet.likes.includes(authUser._id)}/>
-                <CommentButton tweet={tweet} onOpenComment={setSelectedTweet} CommentCount={tweet.comments.length} />
+                <LikeButton
+                  tweetId={tweet.id || tweet._id}
+                  LikesCount={tweet.likes.length}
+                  checkliked={tweet.likes.includes(authUser._id)}
+                />
+                <CommentButton
+                  tweet={tweet}
+                  onOpenComment={setSelectedTweet}
+                  CommentCount={tweet.comments.length}
+                />
 
                 <button
                   onClick={() => handleSave(tweet.id)}
@@ -117,15 +136,16 @@ export default function TweetFeed({ tweets = [], onDeleteTweet }) {
                   <span className="text-sm md:text-base">Save</span>
                 </button>
 
-                {authUser && authUser._id == (tweet.userId || tweet.user._id) && (
-                  <button
-                    onClick={() => handleDelete(tweet.id)}
-                    className="flex items-center space-x-1 md:space-x-2 text-gray-400 hover:text-red-600 transition"
-                  >
-                    <FaTrash className="w-4 h-4 md:w-5 md:h-5" />
-                    <span className="text-sm md:text-base">Delete</span>
-                  </button>
-                )}
+                {authUser &&
+                  authUser._id == (tweet.userId || tweet.user._id) && (
+                    <button
+                      onClick={() => handleDelete(tweet.id)}
+                      className="flex items-center space-x-1 md:space-x-2 text-gray-400 hover:text-red-600 transition"
+                    >
+                      <FaTrash className="w-4 h-4 md:w-5 md:h-5" />
+                      <span className="text-sm md:text-base">Delete</span>
+                    </button>
+                  )}
               </div>
             </div>
           </div>
