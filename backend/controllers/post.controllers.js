@@ -233,8 +233,9 @@ export const getUserPosts = async (req, res) => {
         if (!user) return res.status(404).json({ error: "User not found" });
 
         const userPosts = await Post.find({ user: user._id })
-            .sort({ createdAt: -1 });
-
+        .populate("user", "username fullname")
+        .populate("comments.user", "username avatar")
+        .sort({ createdAt: -1 });
         res.status(200).json(userPosts);
     } catch (error) {
         console.error("Error fetching user posts:", error);

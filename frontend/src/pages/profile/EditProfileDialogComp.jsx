@@ -14,15 +14,15 @@ import { FaTimes } from "react-icons/fa";
 
 export default function EditProfileDialog({ open, onClose, user }) {
   const [formData, setFormData] = useState({
-    username: user.username || "",
-    fullName: user.name || "",
-    email: user.email || "",
+    username: user?.username || "",
+    fullName: user?.fullName || "",
+    email: user?.email || "",
     oldPassword: "",
     newPassword: "",
     profileImg: null,
     coverImg: null,
-    bio: user.bio || "",
-    link: user.link || "",
+    bio: user?.bio || "",
+    link: user?.link || "",
   });
 
   const [loading, setLoading] = useState(false);

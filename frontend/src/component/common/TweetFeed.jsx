@@ -17,16 +17,20 @@ export default function TweetFeed({ tweets = [], onDeleteTweet }) {
   const { data: authUser } = useQuery({ queryKey: ["authUser"] });
 
   const handleSave = (tweetId) => {
-    setSavedTweets((prev) => ({
-      ...prev,
-      [tweetId]: !prev[tweetId],
-    }));
-    toast.success(
-      savedTweets[tweetId] ? "Removed from saved tweets" : "Saved tweet",
-      {
-        style: { background: "#333", color: "#fff" },
-      }
-    );
+    // setSavedTweets((prev) => ({
+    //   ...prev,
+    //   [tweetId]: !prev[tweetId],
+    // }));
+    // toast.success(
+    //   savedTweets[tweetId] ? "Removed from saved tweets" : "Saved tweet",
+    //   {
+    //     style: { background: "#333", color: "#fff" },
+    //   }
+    // );
+    toast("Save feature coming soon!", {
+      icon: "💬",
+      style: { background: "#333", color: "#fff" },
+    });
   };
 
 
@@ -72,7 +76,7 @@ export default function TweetFeed({ tweets = [], onDeleteTweet }) {
       <Toaster />
       {tweets.map((tweet) => (
         <div
-          key={tweet.id}
+          key={tweet.id || tweet._id}
           className="p-4 bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow"
         >
           <div className="flex items-start space-x-4">
@@ -83,22 +87,22 @@ export default function TweetFeed({ tweets = [], onDeleteTweet }) {
             <div className="flex-1">
               <div className="flex mb-5 md:mb-2 md:flex-row md:items-center space-x-2 space-y-1 md:space-y-0 md:space-x-2">
                 <span className="font-bold text-base md:text-lg hover:underline cursor-pointer">
-                  {tweet.fullname}
+                  {tweet.fullname || tweet.user.fullname}
                 </span>
-                <span className="text-gray-400 text-sm">@{tweet.username}</span>
+                <span className="text-gray-400 text-sm">@{tweet.username || tweet.user.username}</span>
                 <span className="text-gray-400 text-sm">
                   · {formatDistanceToNowStrict(new Date(tweet.createdAt))} ago
                 </span>
               </div>
 
               <div className="text-gray-200 mt-1 text-sm md:text-base">
-                {tweet.content}
+                {tweet.content || tweet.text}
               </div>
 
-              <TweetImage image={tweet.images} onImageClick={setSelectedImage} />
+              <TweetImage image={tweet.images || tweet.img} onImageClick={setSelectedImage} />
 
               <div className="flex items-center justify-between mt-3 space-x-2 md:space-x-4">
-                <LikeButton tweetId={tweet.id} LikesCount={tweet.likes.length} checkliked={tweet.likes.includes(authUser._id)}/>
+                <LikeButton tweetId={tweet.id || tweet._id} LikesCount={tweet.likes.length} checkliked={tweet.likes.includes(authUser._id)}/>
                 <CommentButton tweet={tweet} onOpenComment={setSelectedTweet} CommentCount={tweet.comments.length} />
 
                 <button
@@ -113,7 +117,7 @@ export default function TweetFeed({ tweets = [], onDeleteTweet }) {
                   <span className="text-sm md:text-base">Save</span>
                 </button>
 
-                {authUser && authUser._id == tweet.userId && (
+                {authUser && authUser._id == (tweet.userId || tweet.user._id) && (
                   <button
                     onClick={() => handleDelete(tweet.id)}
                     className="flex items-center space-x-1 md:space-x-2 text-gray-400 hover:text-red-600 transition"

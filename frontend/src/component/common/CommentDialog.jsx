@@ -127,8 +127,8 @@ export default function CommentDialog({ open, onClose, tweet }) {
             </Avatar>
             <div className="flex items-center gap-3">
               <div>
-                <div className="font-bold">{tweet.fullname}</div>
-                <div className="text-gray-400 text-sm">@{tweet.username}</div>
+                <div className="font-bold">{tweet.fullname || tweet.user.fullname}</div>
+                <div className="text-gray-400 text-sm">@{tweet.username || tweet.user.username}</div>
               </div>
               <span className="text-gray-400 text-sm">
                 ·{" "}
@@ -139,7 +139,7 @@ export default function CommentDialog({ open, onClose, tweet }) {
               </span>
             </div>
           </div>
-          <div className="mt-2 text-gray-200">{tweet.content}</div>
+          <div className="mt-2 text-gray-200">{tweet.content || tweet.text}</div>
           {tweet.images && (
             <img
               src={
