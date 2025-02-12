@@ -139,75 +139,97 @@ export const getSuggestedUsers = async (req, res) => {
     }
 };
 
+const deleteImage = async (imageUrl) => {
+    if (!imageUrl) return;
+    const public_id = imageUrl.split("/").slice(-1)[0].split(".")[0]; // Extract correct public_id
+    await cloudinary.uploader.destroy(public_id);
+};
+
+// Reusable function to upload an image
+const uploadImage = async (img, folder) => {
+    if (!img) return null;
+    
+    // Ensure it's a Base64 string
+    if(img == null || img == undefined || img == "" || img == "https://placehold.co/200x200"){
+        return null;
+    }
+    if (!img.startsWith("data:image")) {
+        throw new Error("Invalid image format");
+    }
+
+    const uploadedResponse = await cloudinary.uploader.upload(img, {
+        folder,
+        resource_type: "image",
+    }); 
+    
+    return uploadedResponse.secure_url;
+};
+
 
 export const updateUser = async (req, res) => {
-    let { username, fullname, email, oldPassword, newPassword, bio, link } = req.body;
-    let { profileImg, coverImg } = req.body;
-
-    const userId = req.user._id;
-
     try {
+        const userId = req.user._id;
+        const { username, fullname, email, oldPassword, newPassword, bio, link } = req.body;
+        let { profileImg, coverImg } = req.body;
+
         const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).json({ message: "User Not Found!" });
-        }
+        if (!user) return res.status(404).json({ message: "User Not Found!" });
 
-        if ((!oldPassword && newPassword) || (oldPassword && !newPassword)) {
-            return res.status(400).json({ error: "Please provide both current (old) and new password" });
-        }
-
-        if (oldPassword && newPassword) {
+        // Handle Password Update
+        if (oldPassword || newPassword) {
+            if (!oldPassword || !newPassword) {
+                return res.status(400).json({ error: "Provide both old and new passwords." });
+            }
             const isMatch = await bcrypt.compare(oldPassword, user.password);
-            if (!isMatch) {
-                return res.status(400).json({ error: "Incorrect current password!" });
-            }
+            if (!isMatch) return res.status(400).json({ error: "Incorrect current password!" });
+            if (newPassword.length < 8) return res.status(400).json({ error: "Password must be at least 6 characters!" });
 
-            if (newPassword.length < 6) {
-                return res.status(400).json({ error: "New password must be at least 6 characters long!" });
-            }
-            //before success u must check if the old password not = to new password ,,u can do it later on
-            
-            const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(newPassword, salt);
-            user.password = hashedPassword;
+            user.password = await bcrypt.hash(newPassword, 10);
         }
 
-        // Update other user fields if provided
+        // Handle Profile Image Upload
+        if (profileImg) {
+            // await deleteImage(user.profileImg); // Delete old image if exists
+            user.profileImg = await uploadImage(profileImg, "users");
+        }
+        // if (profileImg) {
+        //     const uploadedResponse = await cloudinary.uploader.upload(profileImg, {
+        //       folder: "profile",
+        //       resource_type: "image",
+        //     });
+        //     profileImg = uploadedResponse.secure_url;
+        //   }
+
+        // Handle Cover Image Upload
+        if (coverImg) {
+            await deleteImage(user.coverImg); // Delete old image if exists
+            user.coverImg = await uploadImage(coverImg, "users");
+        }
+        
+
+        // Update user details
         if (username) user.username = username;
         if (fullname) user.fullname = fullname;
         if (email) user.email = email;
         if (bio) user.bio = bio;
         if (link) user.link = link;
 
-        // Handle profile and cover image updates (Assuming Cloudinary)
-        if (profileImg) {
-            if (user.profileImg) {
-                const public_id = user.profileImg.split("/").pop().split(".")[0]; // Changed: Extract public_id from URL
-                await cloudinary.uploader.destroy(public_id); // Changed: Use public_id to destroy old image
-            }
-            const uploaderpic = await cloudinary.uploader.upload(profileImg,{ folder: "users" })
-            profileImg = uploaderpic.secure_url; 
-            console.log('Profile image to be uploaded to Cloudinary');
-        }
+        await user.save();
+        const updatedUser = await User.findById(userId).select("-password"); // Exclude password
 
-        if (coverImg) {
-            if (user.coverImg) {
-                const public_id = user.coverImg.split("/").pop().split(".")[0]; // Changed: Extract public_id from URL
-                await cloudinary.uploader.destroy(public_id); // Changed: Use public_id to destroy old image
-            }
-            const result = await cloudinary.uploader.upload(coverImg, { folder: "users" });
-            user.coverImg = result.secure_url;
-            console.log('Cover image to be uploaded to Cloudinary');
-        }
-
-        const updatedUser = await user.save();
-        const userWithoutPassword = await User.findById(userId).select('-password'); // This will exclude the password
-        res.status(200).json(userWithoutPassword);
-        // updatedUser.password = null;
-        // res.status(200).json(updatedUser);
-
+        res.status(200).json(updatedUser);
     } catch (error) {
-        console.error("Error in updateUser controller:", error.message);
+        console.error("Error in updateUser controller:", error);
         res.status(500).json({ error: error.message });
     }
 };
+
+export const getAllUsers = async (req , res)=>{
+    try {
+        const users = await User.find({}).select("-password");
+        res.status(200).json(users);
+    } catch (error) {
+        console.error("Error in user controllers: ",error.message);
+        throw new Error(error.message);
+    }
+}

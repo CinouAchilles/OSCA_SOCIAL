@@ -57,18 +57,28 @@ export default function Sidebar() {
     }
   };
 
+  // Show toast for unavailable pages
+  const handleUnavailablePage = (page) => {
+    toast("🚀 " + page + " page is coming soon!", {
+      style: { background: "#333", color: "#fff" },
+      icon: "⏳",
+      duration: 1000,
+    });
+  };
+
   // Navigation items
   const navItems = [
-    { path: "/", icon: <FaHome className="w-6 h-6" />, label: "Home" },
-    { path: "/explore", icon: <FaHashtag className="w-6 h-6" />, label: "Explore" },
-    { path: "/notifications", icon: <FaBell className="w-6 h-6" />, label: "Notifications" },
-    { path: "/bookmarks", icon: <FaBookmark className="w-6 h-6" />, label: "Bookmarks" },
+    { path: "/", icon: <FaHome className="w-6 h-6" />, label: "Home", disabled: false },
+    { path: "/explore", icon: <FaHashtag className="w-6 h-6" />, label: "Explore", disabled: true },
+    { path: "/notifications", icon: <FaBell className="w-6 h-6" />, label: "Notifications", disabled: false },
+    { path: "/bookmarks", icon: <FaBookmark className="w-6 h-6" />, label: "Bookmarks", disabled: true },
     {
       path: `/profile/${authUser?.username || ""}`,
       icon: <FaUser className="w-6 h-6" />,
       label: "Profile",
+      disabled: false,
     },
-    { path: "/more", icon: <FiMoreHorizontal className="w-6 h-6" />, label: "More" },
+    { path: "/more", icon: <FiMoreHorizontal className="w-6 h-6" />, label: "More", disabled: false },
   ];
 
   return (
@@ -82,29 +92,41 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex flex-col space-y-2 mt-8">
-        {navItems.map((item) => (
-          <Link
-            key={item.path}
-            to={item.path}
-            className={`flex items-center space-x-3 p-2 rounded-lg transition ${
-              location.pathname === item.path ? "bg-gray-800 text-blue-400" : "hover:bg-gray-800"
-            }`}
-          >
-            {item.icon}
-            <span>{item.label}</span>
-          </Link>
-        ))}
+        {navItems.map((item) =>
+          item.disabled ? (
+            <button
+              key={item.path}
+              onClick={() => handleUnavailablePage(item.label)}
+              className="flex items-center space-x-3 p-2 rounded-lg transition hover:bg-gray-800 w-full text-left"
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </button>
+          ) : (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`flex items-center space-x-3 p-2 rounded-lg transition ${
+                location.pathname === item.path ? "bg-gray-800 text-blue-400" : "hover:bg-gray-800"
+              }`}
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </Link>
+          )
+        )}
       </nav>
 
       {/* Push Profile Section to Bottom */}
       <div className="mt-auto">
         <div className="flex items-center justify-between p-2 hover:bg-gray-800 rounded-lg flex-wrap">
           <div className="flex items-center space-x-3">
-            <img
-              src={authUser?.profileImg || "https://placehold.co/150"}
-              alt="Profile"
-              className="w-10 h-10 rounded-full"
-            />
+            <div
+              style={{
+                backgroundImage: `url(${authUser?.profileImg || "https://placehold.co/150"})`,
+              }}
+              className="w-10 h-10 bg-cover bg-center rounded-full"
+            ></div>
             <div className="flex flex-col">
               <span className="font-bold">{authUser?.fullname || "Loading..."}</span>
               <span className="text-gray-400">@{authUser?.username || "..."}</span>

@@ -81,7 +81,7 @@ export const commentOnPost = async (req, res) => {
       return res.status(400).json({ error: "Comment text is required" });
     if (!postId) return res.status(400).json({ error: "Post id is required" });
 
-    const post = await Post.findById(postId).populate("user", "username");
+    const post = await Post.findById(postId).populate("user", "username profileImg");
 
     if (!post) return res.status(404).json({ error: "Post not found" });
 
@@ -95,7 +95,7 @@ export const commentOnPost = async (req, res) => {
 
     // Populate the newly added comment
     const populatedPost = await Post.findById(postId)
-      .populate("comments.user", "username avatar") // ✅ Populate comment user details
+      .populate("comments.user", "username profileImg") // ✅ Populate comment user details
       .exec();
 
     const addedComment = populatedPost.comments[populatedPost.comments.length - 1];
@@ -159,9 +159,10 @@ export const likeUnlikePost = async (req, res) => {
 export const getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find()
-      .populate("user", "username fullname")
-      .populate("comments.user", "username avatar")
-      .sort({ createdAt: -1 });
+    .populate("user", "username fullname profileImg")
+    .populate("comments.user", "username profileImg")
+    .sort({ createdAt: -1 });
+
 
     if (posts.length == 0) {
       return res.status(200).json([]);
@@ -187,8 +188,8 @@ export const getLikedPosts = async (req, res) => {
         if (!user) return res.status(404).json({ error: "User not found" });
 
         const likedPosts = await Post.find({ _id: { $in: user.likedPosts } })
-          .populate("user", "username fullname")
-          .populate("comments.user", "username avatar")
+          .populate("user", "username fullname profileImg")
+          .populate("comments.user", "username profileImg")
           .sort({ createdAt: -1 });
             
 
@@ -215,7 +216,7 @@ export const getFollowingPosts = async (req ,res)=>{
         const following = user.following;
         const followingPosts = await Post.find({user:{$in:following}})
         .sort({ createdAt: -1 })
-        .populate("user", "username fullname") // Populate the 'user' field with the 'username'
+        .populate("user", "username fullname profileImg") // Populate the 'user' field with the 'username'
         .populate("likes", "_id") // Populate the 'likes' field with user IDs (if needed)
         .populate("comments.user", "username"); // Populate the 'user' field in comments with the 'username'
 
@@ -235,8 +236,8 @@ export const getUserPosts = async (req, res) => {
         if (!user) return res.status(404).json({ error: "User not found" });
 
         const userPosts = await Post.find({ user: user._id })
-        .populate("user", "username fullname")
-        .populate("comments.user", "username avatar")
+        .populate("user", "username fullname profileImg")
+        .populate("comments.user", "username profileImg")
         .sort({ createdAt: -1 });
         res.status(200).json(userPosts);
     } catch (error) {

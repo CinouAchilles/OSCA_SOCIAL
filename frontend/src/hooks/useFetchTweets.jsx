@@ -1,9 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { data } from "react-router-dom";
 
 const getEndPoint = (feedType, username, userId) => {
-  console.log(feedType, username, userId);
   if (username) {
     switch (feedType) {
       case "Tweets":
@@ -41,7 +38,6 @@ const fetchTweets = async (feedType, username, userId) => {
     if (!res.ok) {
       throw new Error(data.error || "Something went wrong");
     }
-    console.log(data);
     return data;
   } catch (error) {
     throw new Error(error.message || "Network error");

@@ -5,8 +5,8 @@ import PostTweet from "./PostTweet";
 import TweetFeed from "../../component/common/TweetFeed";
 import Xsvg from "../../component/svgs/x";
 import SidebarPhone from "../../component/common/SidebarPhone";
-import { CircularProgress } from "@mui/material";
 import useFetchTweets from "../../hooks/useFetchTweets";
+import TweetSkeleton from "../../component/skeletons/TweetSkeleton";
 
 export default function HomePage() {
   const [feedType, setFeedType] = useState("forYou");
@@ -16,21 +16,10 @@ export default function HomePage() {
 
   useEffect(() => {
     if (postsfetched) {
-      const formattedPosts = postsfetched.map((post) => ({
-        id: post._id,
-        userId: post.user._id,
-        username: post.user.username,
-        fullname: post.user.fullname,
-        content: post.text,
-        images: post.img,
-        likes: post.likes,
-        comments: post.comments,
-        createdAt: post.createdAt,
-      }));
-
-      setTweets(formattedPosts);
+      setTweets(postsfetched); // Store the full post object
     }
   }, [postsfetched]);
+  
 
   const handlePostTweet = (content, image) => {
     const newTweet = {
@@ -88,9 +77,8 @@ export default function HomePage() {
               <p>Error loading tweets. Please try again.</p>
             </div>
           ) : isLoading ? (
-            <div className="flex justify-center items-center h-full">
-              <CircularProgress color="primary" />
-            </div>
+            
+              <TweetSkeleton/>
           ) : tweets.length > 0 ? (
             <TweetFeed tweets={tweets} onDeleteTweet={handleDeleteTweet} />
           ) : (

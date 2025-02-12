@@ -130,6 +130,8 @@ export default function PostTweet({ onPostTweet }) {
       {/* Bottom Section */}
       <div className="flex items-center justify-between mt-3">
         <div className="flex items-center space-x-4">
+
+          
           {/* Image Upload Button */}
           <label className="cursor-pointer p-2 text-blue-500 hover:text-blue-600 transition">
             <input

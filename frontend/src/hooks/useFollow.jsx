@@ -36,6 +36,7 @@ export default function useFollow() {
       Promise.all([
         queryClient.invalidateQueries({ queryKey: ["getSeggested"] }),
         queryClient.invalidateQueries({ queryKey: ["authUser"] }),
+        queryClient.invalidateQueries({ queryKey: ["userProfile"] }),
       ]);
     },
     onError: (error) => {

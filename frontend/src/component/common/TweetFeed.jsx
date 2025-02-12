@@ -16,7 +16,7 @@ export default function TweetFeed({ tweets = [], onDeleteTweet }) {
   const [selectedImage, setSelectedImage] = useState(null);
 
   const { data: authUser } = useQuery({ queryKey: ["authUser"] });
-
+  console.log("tweets are here", tweets);
   const handleSave = (tweetId) => {
     // setSavedTweets((prev) => ({
     //   ...prev,
@@ -85,11 +85,16 @@ export default function TweetFeed({ tweets = [], onDeleteTweet }) {
         >
           <div className="flex items-start space-x-4">
             <div className="w-10 h-10 md:w-12 md:h-12 bg-gray-700 rounded-full flex items-center justify-center flex-shrink-0">
-              <FaUser className="w-5 h-5 md:w-6 md:h-6 text-gray-400" />
+              {/* <FaUser className="w-5 h-5 md:w-6 md:h-6 text-gray-400" /> */}
+              <div
+              style={{backgroundImage: `url(${tweet?.user?.profileImg || tweet.profileImg || "https://placehold.co/150"})`}}
+              className="w-9 h-9 md:w-11 md:h-11 bg-cover bg-center rounded-full"
+              ></div>
             </div>
-            {console.log(tweet)}
             <div className="flex-1">
-              <div className="flex mb-5 md:mb-2 md:flex-row md:items-center space-x-2 space-y-1 md:space-y-0 md:space-x-2">
+              <div className="flex mb-5 md:mb-2 md:flex-row md:items-center md:space-y-0 md:space-x-2
+              flex-row items-center space-y-0 space-x-2
+              ">
                 <Link to={`/profile/${tweet.user?.username || tweet?.username  || "test"}`}>
                   <span className="font-bold text-base md:text-lg hover:underline cursor-pointer">
                     {tweet.fullname || tweet.user.fullname}

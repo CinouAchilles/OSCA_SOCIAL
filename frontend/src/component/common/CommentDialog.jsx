@@ -123,7 +123,21 @@ export default function CommentDialog({ open, onClose, tweet }) {
         <div className="mb-4 p-4 bg-gray-900 rounded-lg border border-gray-700">
           <div className="flex items-center space-x-3">
             <Avatar style={{ backgroundColor: "#1f2937" }}>
-              <FaUser className="text-gray-400" />
+              {/* <FaUser className="text-gray-400" /> */}
+              <div
+                style={{
+                  backgroundImage: `url(${
+                    tweet.profileImg || tweet.user?.profileImg || ""
+                  })`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  width: "100%",
+                  height: "100%",
+                  borderRadius: "50%",
+                  backgroundColor: "#374151",
+                  zIndex: 10,
+                }}
+              ></div>
             </Avatar>
             <div className="flex items-center gap-3">
               <div>
@@ -180,7 +194,22 @@ export default function CommentDialog({ open, onClose, tweet }) {
               >
                 <ListItemAvatar>
                   <Avatar style={{ backgroundColor: "#3b82f6" }}>
-                    <FaUser className="text-white" />
+                    {console.log(comment)}
+                    {/* <FaUser className="text-white" /> */}
+                    <div
+                      style={{
+                        backgroundImage: `url(${
+                          comment.profileImg || comment.user?.profileImg || ""
+                        })`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        width: "100%",
+                        height: "100%",
+                        borderRadius: "50%",
+                        backgroundColor: "#374151",
+                        zIndex: 10,
+                      }}
+                    ></div>
                   </Avatar>
                 </ListItemAvatar>
                 <ListItemText
