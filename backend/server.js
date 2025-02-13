@@ -10,6 +10,7 @@ import notificationsRoutes from "./routes/notification.routes.js"
 import connectDB from "./db/connectDB.js";
 import cookieParser from "cookie-parser"
 import cors from "cors"
+import path from "path"
 
 dotenv.config();
 const app = express();
@@ -21,6 +22,7 @@ cloudinary.config({
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET
 })
+const __dirname = path.resolve();
 
 app.use(
     cors({
@@ -38,6 +40,13 @@ app.use("/api/auth", authRoutes)
 app.use("/api/users", userRoutes)
 app.use("/api/posts", postRoutes)
 app.use("/api/notifications", notificationsRoutes)
+
+if(process.env.NODE_ENV === "production"){
+  app.use(express.static(path.join(__dirname, "/frontend/dist")));
+  app.get("*",(req,res)=>{
+    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+  })
+}
 
 app.listen(port , ()=>{
     console.log("server is running in port: "+port);
