@@ -4,20 +4,20 @@ const getEndPoint = (feedType, username, userId) => {
   if (username) {
     switch (feedType) {
       case "Tweets":
-        return `http://localhost:3000/api/posts/user/${username}`;
+        return `/api/posts/user/${username}`;
       case "Likes":
-        return `http://localhost:3000/api/posts/likes/${userId}`; // Use dynamic userId
+        return `/api/posts/likes/${userId}`; // Use dynamic userId
       default:
-        return `http://localhost:3000/api/posts/user/${username}`;
+        return `/api/posts/user/${username}`;
     }
   }
   switch (feedType) {
     case "forYou":
-      return "http://localhost:3000/api/posts/all";
+      return "/api/posts/all";
     case "following":
-      return "http://localhost:3000/api/posts/followingposts";
+      return "/api/posts/followingposts";
     default:
-      return "http://localhost:3000/api/posts/all";
+      return "/api/posts/all";
   }
 };
 

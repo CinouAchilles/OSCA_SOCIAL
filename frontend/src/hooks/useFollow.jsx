@@ -12,7 +12,7 @@ export default function useFollow() {
     mutationFn: async (userId) => {
       try {
         const res = await fetch(
-          `http://localhost:3000/api/users/follow/${userId}`,
+          `/api/users/follow/${userId}`,
           {
             method: "POST",
             headers: {

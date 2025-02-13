@@ -35,7 +35,7 @@ export default function CommentDialog({ open, onClose, tweet }) {
     mutationFn: async (commentText) => {
       try {
         const res = await fetch(
-          `http://localhost:3000/api/posts/comment/${tweet.id || tweet._id}`,
+          `/api/posts/comment/${tweet.id || tweet._id}`,
           {
             method: "POST",
             body: JSON.stringify({ text: commentText }),

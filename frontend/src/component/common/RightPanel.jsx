@@ -27,7 +27,7 @@ export default function RightPanel() {
     queryKey: ["getSeggested"],
     queryFn: async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/users/seggested", {
+        const res = await fetch("/api/users/seggested", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -53,7 +53,7 @@ export default function RightPanel() {
   } = useMutation({
     mutationFn: async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/users/search", {
+        const res = await fetch("/api/users/search", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

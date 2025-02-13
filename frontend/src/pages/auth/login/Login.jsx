@@ -34,7 +34,7 @@ export default function Login() {
     mutationFn: async (userData) => {
       setIsLoading(true); // Set loading state before request
       try {
-        const res = await fetch("http://localhost:3000/api/auth/login", {
+        const res = await fetch("/api/auth/login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

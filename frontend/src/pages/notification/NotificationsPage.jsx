@@ -21,7 +21,7 @@ export default function NotificationsPage() {
     queryKey: ["notifications"],
     queryFn: async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/notifications/", {
+        const res = await fetch("/api/notifications/", {
           method: "GET",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -42,7 +42,7 @@ export default function NotificationsPage() {
     mutationFn: async (id) => {
       try {
         const res = await fetch(
-          `http://localhost:3000/api/notifications/${id}`,
+          `/api/notifications/${id}`,
           {
             method: "PUT",
             credentials: "include",

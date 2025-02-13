@@ -12,7 +12,7 @@ export default function LikeButton({ tweetId, LikesCount, checkliked }) {
   const { mutate: like, isPending } = useMutation({
     mutationFn: async () => {
       try {
-        const res = await fetch(`http://localhost:3000/api/posts/like/${tweetId}`, {
+        const res = await fetch(`/api/posts/like/${tweetId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",

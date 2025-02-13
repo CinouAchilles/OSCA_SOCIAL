@@ -39,7 +39,7 @@ export default function ProfilePage() {
     queryKey: ["userProfile", username],
     queryFn: async () => {
       const res = await fetch(
-        `http://localhost:3000/api/users/profile/${username}`,
+        `/api/users/profile/${username}`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -73,7 +73,7 @@ export default function ProfilePage() {
   const { mutate: updateUserPro, isPending: isProUpdated } = useMutation({
     mutationFn: async (data) => {
       try {
-        const res = await fetch(`http://localhost:3000/api/users/update`, {
+        const res = await fetch(`/api/users/update`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

@@ -15,7 +15,7 @@ function App() {
     queryKey: ["authUser"],
     queryFn: async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/auth/me", {
+        const res = await fetch("/api/auth/me", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

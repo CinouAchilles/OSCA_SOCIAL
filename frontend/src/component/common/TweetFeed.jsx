@@ -37,7 +37,7 @@ export default function TweetFeed({ tweets = [], onDeleteTweet }) {
     mutationFn: async (idToDelete) => {
       try {
         const res = await fetch(
-          `http://localhost:3000/api/posts/${idToDelete}`,
+          `/api/posts/${idToDelete}`,
           {
             method: "DELETE",
             headers: {
