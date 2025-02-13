@@ -147,80 +147,82 @@ const deleteImage = async (imageUrl) => {
 
 // Reusable function to upload an image
 const uploadImage = async (img, folder) => {
-    if (!img) return null;
-    
-    // Ensure it's a Base64 string
-    if(img == null || img == undefined || img == "" || img == "https://placehold.co/200x200"){
-        return null;
+    if (!img || img.trim() === "") return null;
+  
+    // Skip if the image is already a URL
+    if (img.startsWith("http") || img.startsWith("https")) {
+      return img;
     }
+  
+    // Validate Base64 image format
     if (!img.startsWith("data:image")) {
-        throw new Error("Invalid image format");
+      throw new Error("Invalid image format. Please upload a valid image file.");
     }
-
-    const uploadedResponse = await cloudinary.uploader.upload(img, {
+  
+    try {
+      // Upload to Cloudinary
+      const uploadedResponse = await cloudinary.uploader.upload(img, {
         folder,
         resource_type: "image",
-    }); 
-    
-    return uploadedResponse.secure_url;
-};
+      });
+      return uploadedResponse.secure_url;
+    } catch (error) {
+      console.error("Failed to upload image:", error);
+      throw new Error("Failed to upload image. Please try again.");
+    }
+  };
 
 
 export const updateUser = async (req, res) => {
     try {
-        const userId = req.user._id;
-        const { username, fullname, email, oldPassword, newPassword, bio, link } = req.body;
-        let { profileImg, coverImg } = req.body;
-
-        const user = await User.findById(userId);
-        if (!user) return res.status(404).json({ message: "User Not Found!" });
-
-        // Handle Password Update
-        if (oldPassword || newPassword) {
-            if (!oldPassword || !newPassword) {
-                return res.status(400).json({ error: "Provide both old and new passwords." });
-            }
-            const isMatch = await bcrypt.compare(oldPassword, user.password);
-            if (!isMatch) return res.status(400).json({ error: "Incorrect current password!" });
-            if (newPassword.length < 8) return res.status(400).json({ error: "Password must be at least 6 characters!" });
-
-            user.password = await bcrypt.hash(newPassword, 10);
+      const userId = req.user._id;
+      const { username, fullname, email, oldPassword, newPassword, bio, link } = req.body;
+      let { profileImg, coverImg } = req.body;
+      const user = await User.findById(userId);
+      if (!user) return res.status(404).json({ message: "User not found." });
+  
+      // Handle Password Update
+      if (oldPassword || newPassword) {
+        if (!oldPassword || !newPassword) {
+          return res.status(400).json({ error: "Please provide both old and new passwords." });
         }
-
-        // Handle Profile Image Upload
-        if (profileImg) {
-            // await deleteImage(user.profileImg); // Delete old image if exists
-            user.profileImg = await uploadImage(profileImg, "users");
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) return res.status(400).json({ error: "Incorrect current password." });
+        if (newPassword.length < 8) return res.status(400).json({ error: "Password must be at least 8 characters." });
+  
+        user.password = await bcrypt.hash(newPassword, 10);
+      }
+  
+      // Handle Profile Image Upload
+      if (profileImg) {
+        if (user.profileImg && user.profileImg !== "https://placehold.co/200x200") {
+          await deleteImage(user.profileImg); // Delete old image
         }
-        // if (profileImg) {
-        //     const uploadedResponse = await cloudinary.uploader.upload(profileImg, {
-        //       folder: "profile",
-        //       resource_type: "image",
-        //     });
-        //     profileImg = uploadedResponse.secure_url;
-        //   }
-
-        // Handle Cover Image Upload
-        if (coverImg) {
-            await deleteImage(user.coverImg); // Delete old image if exists
-            user.coverImg = await uploadImage(coverImg, "users");
+        user.profileImg = await uploadImage(profileImg, "users");
+      }
+  
+      // Handle Cover Image Upload
+      if (coverImg) {
+        if (user.coverImg) {
+          await deleteImage(user.coverImg); // Delete old image
         }
-        
-
-        // Update user details
-        if (username) user.username = username;
-        if (fullname) user.fullname = fullname;
-        if (email) user.email = email;
-        if (bio) user.bio = bio;
-        if (link) user.link = link;
-
-        await user.save();
-        const updatedUser = await User.findById(userId).select("-password"); // Exclude password
-
-        res.status(200).json(updatedUser);
+        user.coverImg = await uploadImage(coverImg, "users");
+      }
+  
+      // Update user details
+    if (username && username !== user.username) user.username = username;
+    if (fullname && fullname !== user.fullname) user.fullname = fullname;
+    if (email && email !== user.email) user.email = email;
+    if (bio && bio !== user.bio) user.bio = bio;
+    if (link && link !== user.link) user.link = link;
+  
+      await user.save();
+      const updatedUser = await User.findById(userId).select("-password"); // Exclude password
+  
+      res.status(200).json(updatedUser);
     } catch (error) {
-        console.error("Error in updateUser controller:", error);
-        res.status(500).json({ error: error.message });
+      console.error("Error in updateUser controller:", error);
+      res.status(500).json({ error: error.message || "An error occurred while updating your profile." });
     }
 };
 

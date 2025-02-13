@@ -16,38 +16,38 @@ import toast from "react-hot-toast";
 import { FaTimes } from "react-icons/fa";
 
 export default function EditProfileDialog({ open, onClose, user, onUpdateProfile, isUpdating }) {
-  console.log(user)
-  const [profilePreview, setProfilePreview] = useState(user?.profileImg );
+  const [profilePreview, setProfilePreview] = useState(user?.profileImg || "https://placehold.co/200x200");
   const [coverPreview, setCoverPreview] = useState(user?.coverImg || null);
-  const [imageChosen, setImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-  // const [image, setImage] = useState(null);
   const queryClient = useQueryClient();
-  
+
   const [formData, setFormData] = useState({
-    username: user?.username ,
-    fullName: user?.fullname || "",
+    username: user?.username || "",
+    fullname: user?.fullname || "",
     email: user?.email || "",
     oldPassword: "",
     newPassword: "",
     profileImg: user?.profileImg || null,
     coverImg: user?.coverImg || null,
     bio: user?.bio || "",
-    link: user?.link ,
+    link: user?.link || "",
   });
-  useEffect(()=>{
+
+  // Reset form data when user changes
+  useEffect(() => {
     setFormData({
-      username: user?.username ,
-      fullName: user?.fullname || "",
+      username: user?.username || "",
+      fullname: user?.fullname || "",
       email: user?.email || "",
       oldPassword: "",
       newPassword: "",
       profileImg: user?.profileImg || null,
       coverImg: user?.coverImg || null,
       bio: user?.bio || "",
-      link: user?.link ,
-    })
-  },[user])
+      link: user?.link || "",
+    });
+    setProfilePreview(user?.profileImg || "https://placehold.co/200x200");
+    setCoverPreview(user?.coverImg || null);
+  }, [user]);
 
   // Handle Text Inputs
   const handleChange = (e) => {
@@ -58,44 +58,47 @@ export default function EditProfileDialog({ open, onClose, user, onUpdateProfile
   // Handle Image Uploads (with Preview)
   const handleImageUpload = (e, type) => {
     const file = e.target.files[0];
-    if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (type === "profile") {
-          setProfilePreview(reader.result);
-          setFormData((prev) => ({ ...prev, profileImg: reader.result })); 
-        } else {
-          setCoverPreview(reader.result);
-          setFormData((prev) => ({ ...prev, coverImg: reader.result }));
-        }
-      };
-      reader.readAsDataURL(file); // Convert file to Base64
-    } else {
-      toast.error("Please upload a valid image file.");
+    if (!file) {
+      toast.error("No file selected.", { style: { background: "#333", color: "#fff" } });
+      return;
     }
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload a valid image file.", { style: { background: "#333", color: "#fff" } });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (type === "profile") {
+        setProfilePreview(reader.result);
+        setFormData((prev) => ({ ...prev, profileImg: reader.result }));
+      } else {
+        setCoverPreview(reader.result);
+        setFormData((prev) => ({ ...prev, coverImg: reader.result }));
+      }
+    };
+    reader.readAsDataURL(file);
   };
-  
-  
 
   // Handle Form Submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    if(formData?.profileImg == "https://placehold.co/200x200"){
-      setFormData((prev) => ({ ...prev, profileImg: null }));
-    }
-    console.log(user);
-    console.log("formated data: " + formData)
-    if (!formData.username || !formData.fullName || !formData.email) {
-      toast("Please fill out all required fields." , {
-        style: { background: "#333", color: "#fff" },
-      });
+
+    // Validate required fields
+    if (!formData.username || !formData.fullname || !formData.email) {
+      toast.error("Please fill out all required fields.", { style: { background: "#333", color: "#fff" } });
       return;
     }
-    Promise.all([
-      queryClient.invalidateQueries({ queryKey: ["authUser"] }),
-      queryClient.invalidateQueries({ queryKey: ["userProfile"] }),
-      queryClient.invalidateQueries({ queryKey: ["tweets"] }),
-    ]);
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Please enter a valid email address.", { style: { background: "#333", color: "#fff" } });
+      return;
+    }
+
+    // Update profile
     onUpdateProfile(formData, { onSuccess: onClose });
   };
 
@@ -169,7 +172,7 @@ export default function EditProfileDialog({ open, onClose, user, onUpdateProfile
           />
 
           {/* Full Name */}
-          <TextField label="Full Name" fullWidth name="fullName" value={formData.fullName} onChange={handleChange} margin="normal" variant="outlined"
+          <TextField label="Full Name" fullWidth name="fullname" value={formData.fullname} onChange={handleChange} margin="normal" variant="outlined"
             inputProps={{ style: { backgroundColor: "#2d3748", borderRadius: "4px", color: "white" } }}
             InputLabelProps={{ style: { color: "#cbd5e0" } }}
           />
@@ -191,9 +194,9 @@ export default function EditProfileDialog({ open, onClose, user, onUpdateProfile
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={(e)=>{
+        <Button onClick={(e) => {
           onClose();
-          setProfilePreview(user?.profileImg);
+          setProfilePreview(user?.profileImg || "https://placehold.co/200x200");
         }} color="secondary"
           style={{ backgroundColor: "#f56565", color: "#fff", borderRadius: "4px" }}
           onMouseOver={(e) => (e.target.style.backgroundColor = "#e53e3e")}

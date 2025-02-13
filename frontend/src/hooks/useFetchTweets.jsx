@@ -6,13 +6,11 @@ const getEndPoint = (feedType, username, userId) => {
       case "Tweets":
         return `http://localhost:3000/api/posts/user/${username}`;
       case "Likes":
-        console.log("Likes worked with:" + username + " " + userId);
         return `http://localhost:3000/api/posts/likes/${userId}`; // Use dynamic userId
       default:
         return `http://localhost:3000/api/posts/user/${username}`;
     }
   }
-  console.log("is this working");
   switch (feedType) {
     case "forYou":
       return "http://localhost:3000/api/posts/all";
@@ -43,10 +41,10 @@ const fetchTweets = async (feedType, username, userId) => {
     throw new Error(error.message || "Network error");
   }
 };
-
 export default function useFetchTweets(feedType = "forYou", username = null, userId = null) {
   return useQuery({
-    queryKey: ["tweets", feedType, username, userId],
+    queryKey: ["tweets", feedType, username, userId], // Automatically re-fetches when any of these change
     queryFn: () => fetchTweets(feedType, username, userId),
+    enabled: !!feedType, // Prevents unnecessary fetching
   });
 }

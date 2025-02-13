@@ -11,10 +11,12 @@ import { FiMoreHorizontal } from "react-icons/fi";
 import Xsvg from "../svgs/x";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast, { Toaster } from "react-hot-toast";
+import useLogout from "../../hooks/useLogout";
 
 export default function Sidebar() {
   const location = useLocation();
   const queryClient = useQueryClient();
+  const { logoutMutation } = useLogout();
 
   // Fetch authenticated user
   const { data: authUser } = useQuery({
@@ -22,26 +24,26 @@ export default function Sidebar() {
   });
 
   // Logout mutation
-  const { mutateAsync: logoutMutation } = useMutation({
-    mutationFn: async () => {
-      const res = await fetch("http://localhost:3000/api/auth/logout", {
-        method: "POST",
-        credentials: "include",
-      });
-      if (!res.ok) {
-        throw new Error("Failed to log out");
-      }
-      return res.json(); // Return the response data
-    },
-    onSuccess: () => {
-      queryClient.setQueryData(["authUser"], null);
-      queryClient.invalidateQueries(["authUser"]);
-      console.log("✅ User logged out");
-    },
-    onError: (error) => {
-      console.error("❌ Error logging out:", error.message);
-    },
-  });
+  // const { mutateAsync: logoutMutation } = useMutation({
+  //   mutationFn: async () => {
+  //     const res = await fetch("http://localhost:3000/api/auth/logout", {
+  //       method: "POST",
+  //       credentials: "include",
+  //     });
+  //     if (!res.ok) {
+  //       throw new Error("Failed to log out");
+  //     }
+  //     return res.json(); // Return the response data
+  //   },
+  //   onSuccess: () => {
+  //     queryClient.setQueryData(["authUser"], null);
+  //     queryClient.invalidateQueries(["authUser"]);
+  //     console.log("✅ User logged out");
+  //   },
+  //   onError: (error) => {
+  //     console.error("❌ Error logging out:", error.message);
+  //   },
+  // });
 
   // Logout function
   const handleLogout = async () => {
@@ -78,7 +80,7 @@ export default function Sidebar() {
       label: "Profile",
       disabled: false,
     },
-    { path: "/more", icon: <FiMoreHorizontal className="w-6 h-6" />, label: "More", disabled: false },
+    { path: "/more", icon: <FiMoreHorizontal className="w-6 h-6" />, label: "More", disabled: true },
   ];
 
   return (

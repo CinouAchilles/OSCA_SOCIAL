@@ -59,15 +59,16 @@ export default function ProfilePage() {
     isError,
     refetch: refetchTweets,
   } = useFetchTweets(
-    feedType,
+    user?._id != authUser?._id ? "Tweets" : feedType, // 🔹 Use "Tweets" for user's own profile
     username,
     user?._id // Ensure we only pass `user._id` when `user` exists
   );
+  
 
+  // Invalidate tweets query when username or feedType changes
   useEffect(() => {
-    refetch();
-    refetchTweets();
-  }, [feedType, username, refetch, refetchTweets]); // Added `username` to dependencies
+    queryClient.invalidateQueries({ queryKey: ["tweets", feedType, username, user?._id] });
+  }, [username, feedType, user?._id, queryClient]); // Added `username` to dependencies
 
   const { mutate: updateUserPro, isPending: isProUpdated } = useMutation({
     mutationFn: async (data) => {
@@ -92,6 +93,7 @@ export default function ProfilePage() {
       Promise.all([
         queryClient.invalidateQueries({ queryKey: ["authUser"] }),
         queryClient.invalidateQueries({ queryKey: ["userProfile"] }),
+        queryClient.invalidateQueries({ queryKey: ["tweets"] }),
       ]);
       toast.success("Profile updated successfully", {
         style: { background: "#333", color: "#fff" },
@@ -238,7 +240,7 @@ export default function ProfilePage() {
                 className={`p-3 flex-1 text-center rounded-lg ${
                   feedType === "Likes" ? "text-blue-500" : "text-gray-400"
                 } hover:bg-gray-700`}
-                onClick={() => setFeedType("Likes")}
+                onClick={() => {setFeedType("Likes")}}
               >
                 Likes
               </button>

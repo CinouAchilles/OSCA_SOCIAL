@@ -16,7 +16,6 @@ export default function TweetFeed({ tweets = [], onDeleteTweet }) {
   const [selectedImage, setSelectedImage] = useState(null);
 
   const { data: authUser } = useQuery({ queryKey: ["authUser"] });
-  console.log("tweets are here", tweets);
   const handleSave = (tweetId) => {
     // setSavedTweets((prev) => ({
     //   ...prev,
@@ -73,7 +72,6 @@ export default function TweetFeed({ tweets = [], onDeleteTweet }) {
   const handleDelete = (tweetId) => {
     deletePost(tweetId);
   };
-  // console.log(tweets)
 
   return (
     <div className="space-y-4">

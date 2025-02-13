@@ -152,7 +152,7 @@ export default function RightPanel() {
                     className="w-10 h-10 rounded-full object-cover"
                   />
                   <div>
-                    <Link to={`/profile/${user?.username || "999"}`}>
+                    <Link to={`/profile/${user?.username || "wronguser"}`}>
                       <div className="text-md font-semibold hover:underline cursor-pointer">
                         {user.fullname}
                       </div>
@@ -195,7 +195,7 @@ export default function RightPanel() {
                     className="w-10 h-10 rounded-full object-cover"
                   />
                   <div>
-                    <Link to={`/profile/${user?.username || "999"}`}>
+                    <Link to={`/profile/${user?.username || "wronguser"}`}>
                       <div className="text-md font-semibold hover:underline cursor-pointer">
                         {user.fullname}
                       </div>
