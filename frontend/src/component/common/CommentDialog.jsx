@@ -127,7 +127,7 @@ export default function CommentDialog({ open, onClose, tweet }) {
               <div
                 style={{
                   backgroundImage: `url(${
-                    tweet.profileImg || tweet.user?.profileImg || ""
+                    tweet.profileImg || tweet.user?.profileImg || "https://placehold.co/150"
                   })`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",

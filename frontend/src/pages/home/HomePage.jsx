@@ -11,7 +11,7 @@ import TweetSkeleton from "../../component/skeletons/TweetSkeleton";
 export default function HomePage() {
   const [feedType, setFeedType] = useState("forYou");
   const [tweets, setTweets] = useState([]);
-
+  console.log("Tweets: ", tweets);
   const { data: postsfetched, isLoading, isError } = useFetchTweets(feedType);
 
   useEffect(() => {

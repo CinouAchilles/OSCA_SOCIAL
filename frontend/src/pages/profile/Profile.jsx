@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FaShare, FaUserEdit } from "react-icons/fa";
+import { FaShare, FaSignOutAlt, FaUserEdit } from "react-icons/fa";
 import Sidebar from "../../component/common/Sidebar";
 import SidebarPhone from "../../component/common/SidebarPhone";
 import toast, { Toaster } from "react-hot-toast";
@@ -109,6 +109,38 @@ export default function ProfilePage() {
   const handleEditProfile = () => {
     setOpenEditDialog(true);
   };
+  const { mutateAsync: logoutMutation } = useMutation({
+    mutationFn: async () => {
+      const res = await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        throw new Error("Failed to log out");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.setQueryData(["authUser"], null);
+      queryClient.invalidateQueries(["authUser"]);
+      toast.success("Logged out successfully!", {
+        style: { background: "#333", color: "#fff" },
+      });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Error logging out", {
+        style: { background: "#333", color: "#fff" },
+      });
+    },
+  });
+    // Logout function
+    const handleLogout = async () => {
+      try {
+        await logoutMutation();
+      } catch (error) {
+        console.error("❌ Error logging out:", error);
+      }
+    };
 
   return (
     <div className="min-h-screen flex text-white">
@@ -147,6 +179,7 @@ export default function ProfilePage() {
 
               <div className="ml-4">
                 {authUser?._id == user?._id ? (
+                  <>
                   <button
                     className="px-4 py-2 text-sm font-medium bg-gray-700 hover:bg-gray-600 rounded-full flex items-center space-x-2 transition"
                     onClick={handleEditProfile}
@@ -154,6 +187,16 @@ export default function ProfilePage() {
                     <FaUserEdit className="w-4 h-4" />
                     <span>Edit Profile</span>
                   </button>
+                  {/* Logout Button */}
+                  <button
+                      onClick={handleLogout}
+                      className="px-4 py-2 text-sm font-medium bg-red-500 hover:bg-red-400 rounded-full flex items-center space-x-2 transition"
+                      title="Logout"
+                    >
+                      <FaSignOutAlt className="w-4 h-4" />
+                      <span>Logout</span>
+                    </button>
+                  </>
                 ) : (
                   <button
                     className={`px-4 py-2 text-sm font-medium rounded-full flex items-center space-x-2 transition 

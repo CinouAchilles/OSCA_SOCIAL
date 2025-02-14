@@ -218,7 +218,7 @@ export const getFollowingPosts = async (req ,res)=>{
         .sort({ createdAt: -1 })
         .populate("user", "username fullname profileImg") // Populate the 'user' field with the 'username'
         .populate("likes", "_id") // Populate the 'likes' field with user IDs (if needed)
-        .populate("comments.user", "username"); // Populate the 'user' field in comments with the 'username'
+        .populate("comments.user", "username profileImg"); // Populate the 'user' field in comments with the 'username'
 
         res.status(200).json(followingPosts);
     } catch (error) {

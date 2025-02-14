@@ -10,6 +10,7 @@ export default defineConfig({
     proxy: {
 			"/api": {
 				target: "https://osca-social.onrender.com",
+        // target: "http://localhost:3000",
 				changeOrigin: true,
 			},
 		},
