@@ -24,7 +24,6 @@ export default function CommentDialog({ open, onClose, tweet }) {
   const queryClient = useQueryClient();
   const [newComment, setNewComment] = useState("");
   const [commentsLocal, setComments] = useState(tweet.comments || []);
-  console.log(tweet);
   // Sync local comments with tweet updates
   useEffect(() => {
     setComments(tweet.comments || []);
@@ -194,7 +193,6 @@ export default function CommentDialog({ open, onClose, tweet }) {
               >
                 <ListItemAvatar>
                   <Avatar style={{ backgroundColor: "#3b82f6" }}>
-                    {console.log(comment)}
                     {/* <FaUser className="text-white" /> */}
                     <div
                       style={{
