@@ -68,7 +68,7 @@ export default function ProfilePage() {
     queryClient.invalidateQueries({
       queryKey: ["tweets", feedType, username, user?._id],
     });
-  }, [username, feedType, user?._id, queryClient]); 
+  }, [username, feedType, user?._id, queryClient]);
 
   const { mutate: updateUserPro, isPending: isProUpdated } = useMutation({
     mutationFn: async (data) => {
@@ -147,7 +147,10 @@ export default function ProfilePage() {
               }}
               className="w-full h-full border-b-[0.5px] object-cover"
             ></div>
-            <div className="absolute inset-0 bg-gradient-to-t from-gray-800 to-transparent rounded-t-lg"></div>
+            <div
+              className="absolute inset-0 bg-gradient-to-t from-gray-800 to-transparent rounded-t-lg"
+              onClick={() => setSelectedImage(user?.coverImg)}
+            ></div>
 
             {/* Profile Picture & Edit Button */}
             <div className="absolute -bottom-16 left-4 md:left-8 flex items-center">
@@ -157,6 +160,7 @@ export default function ProfilePage() {
                     user?.profileImg || "https://placehold.co/800x200"
                   })`,
                 }}
+                onClick={() => setSelectedImage(user?.profileImg)}
                 className="w-28 h-28 md:w-32 md:h-32 bg-cover bg-center rounded-full border-4 border-gray-900 shadow-lg z-10"
               ></div>
 

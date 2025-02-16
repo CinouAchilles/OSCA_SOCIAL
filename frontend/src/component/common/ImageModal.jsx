@@ -34,7 +34,7 @@ export default function ImageModal({ imageUrl, onClose }) {
         <img
           src={imageUrl}
           alt="Full Screen"
-          className="max-w-full max-h-full lg:w-10/12 md:max-h-[780px] object-contain rounded-lg shadow-2xl border-4 border-white"
+          className="max-w-full max-h-full md:w-10/12 md:max-h-[780px] object-contain rounded-lg shadow-2xl border-4 border-white"
         />
 
         {/* Close Button inside the Image */}

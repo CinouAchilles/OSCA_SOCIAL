@@ -80,12 +80,13 @@ export default function NotificationsPage() {
   const totalPages = notifications
     ? Math.ceil(notifications.length / itemsPerPage)
     : 1;
-  const currentItems = notifications
-    ? notifications.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-      )
+    const currentItems = notifications
+    ? notifications
+        .slice()
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
     : [];
+  
 
   return (
     <div className="min-h-screen flex">
@@ -102,7 +103,7 @@ export default function NotificationsPage() {
         {error && <p className="text-red-500">{error.message}</p>}
 
         {/* Notifications List */}
-        <div className="space-y-4">
+        <div className="space-y-4 min-h-[448px]">
           {isLoading ? (
             Array(3)
               .fill(0)
@@ -192,7 +193,7 @@ export default function NotificationsPage() {
 
         {/* Pagination */}
         {notifications && notifications.length > itemsPerPage && (
-          <div className="flex justify-between items-center mt-6">
+          <div className="flex justify-between md:justify-evenly items-center mt-6">
             <button
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
