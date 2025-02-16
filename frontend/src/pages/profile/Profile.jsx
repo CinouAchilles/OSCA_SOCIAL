@@ -15,12 +15,13 @@ import RightPanel from "../../component/common/RightPanel";
 import TweetSkeleton from "../../component/skeletons/TweetSkeleton";
 import ProfileBannerSkeleton from "../../component/skeletons/ProfileBannerSkeleton";
 import ProfileInfoSkeleton from "../../component/skeletons/ProfileInfoSkeleton";
+import useLogout from "../../hooks/useLogout";
 
 export default function ProfilePage() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [selectedTweet, setSelectedTweet] = useState(null);
-  const [feedType, setFeedType] = useState("Tweets"); // 🔹 Added missing state for tab selection
+  const [feedType, setFeedType] = useState("Tweets");
 
   const { username } = useParams();
   const queryClient = useQueryClient();
@@ -28,6 +29,7 @@ export default function ProfilePage() {
   const { data: authUser } = useQuery({
     queryKey: ["authUser"],
   });
+  const { logoutMutation } = useLogout();
 
   // Fetch user profile
   const {
@@ -38,14 +40,11 @@ export default function ProfilePage() {
   } = useQuery({
     queryKey: ["userProfile", username],
     queryFn: async () => {
-      const res = await fetch(
-        `/api/users/profile/${username}`,
-        {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-        }
-      );
+      const res = await fetch(`/api/users/profile/${username}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
       if (!res.ok) {
         throw new Error("Failed to fetch user profile");
       }
@@ -63,12 +62,13 @@ export default function ProfilePage() {
     username,
     user?._id // Ensure we only pass `user._id` when `user` exists
   );
-  
 
   // Invalidate tweets query when username or feedType changes
   useEffect(() => {
-    queryClient.invalidateQueries({ queryKey: ["tweets", feedType, username, user?._id] });
-  }, [username, feedType, user?._id, queryClient]); // Added `username` to dependencies
+    queryClient.invalidateQueries({
+      queryKey: ["tweets", feedType, username, user?._id],
+    });
+  }, [username, feedType, user?._id, queryClient]); 
 
   const { mutate: updateUserPro, isPending: isProUpdated } = useMutation({
     mutationFn: async (data) => {
@@ -109,38 +109,19 @@ export default function ProfilePage() {
   const handleEditProfile = () => {
     setOpenEditDialog(true);
   };
-  const { mutateAsync: logoutMutation } = useMutation({
-    mutationFn: async () => {
-      const res = await fetch("/api/auth/logout", {
-        method: "POST",
-        credentials: "include",
-      });
-      if (!res.ok) {
-        throw new Error("Failed to log out");
-      }
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.setQueryData(["authUser"], null);
-      queryClient.invalidateQueries(["authUser"]);
+  // Logout function
+  const handleLogout = async () => {
+    try {
+      await logoutMutation();
       toast.success("Logged out successfully!", {
         style: { background: "#333", color: "#fff" },
       });
-    },
-    onError: (error) => {
+    } catch (error) {
       toast.error(error.message || "Error logging out", {
         style: { background: "#333", color: "#fff" },
       });
-    },
-  });
-    // Logout function
-    const handleLogout = async () => {
-      try {
-        await logoutMutation();
-      } catch (error) {
-        console.error("❌ Error logging out:", error);
-      }
-    };
+    }
+  };
 
   return (
     <div className="min-h-screen flex text-white">
@@ -149,25 +130,27 @@ export default function ProfilePage() {
 
       <div className="min-h-screen overflow-y-scroll border-r border-gray-700 h-screen scrollbar-custom md:w-auto md:mb-0 flex-1 pb-14 md:pb-0">
         {/* Profile Banner */}
-        
+
         {isLoading ? (
           <ProfileBannerSkeleton />
         ) : (
-          <div className="relative h-48 bg-gray-800">
-            <img
-              src={user?.coverImg || "https://placehold.co/800x200"}
-              alt="Banner"
-              className="w-full h-full object-cover border-b-[0.5px]"
-            />
+          <div className="relative h-48 md:h-52 bg-gray-800">
+            <div
+              style={{
+                backgroundImage: `url(${
+                  user?.coverImg || "https://placehold.co/800x200"
+                })`,
+                backgroundRepeat: "no-repeat",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundColor: "#1a1a1a", // Fallback background color
+              }}
+              className="w-full h-full border-b-[0.5px] object-cover"
+            ></div>
             <div className="absolute inset-0 bg-gradient-to-t from-gray-800 to-transparent rounded-t-lg"></div>
 
             {/* Profile Picture & Edit Button */}
             <div className="absolute -bottom-16 left-4 md:left-8 flex items-center">
-              {/* <img
-              src={user?.profileImg || "https://placehold.co/150"}
-              alt={user?.fullname || "User"}
-              className="w-28 h-28 md:w-32 md:h-32 rounded-full border-4 border-gray-900 shadow-lg z-10"
-            /> */}
               <div
                 style={{
                   backgroundImage: `url(${
@@ -180,21 +163,12 @@ export default function ProfilePage() {
               <div className="ml-4">
                 {authUser?._id == user?._id ? (
                   <>
-                  <button
-                    className="px-4 py-2 text-sm font-medium bg-gray-700 hover:bg-gray-600 rounded-full flex items-center space-x-2 transition"
-                    onClick={handleEditProfile}
-                  >
-                    <FaUserEdit className="w-4 h-4" />
-                    <span>Edit Profile</span>
-                  </button>
-                  {/* Logout Button */}
-                  <button
-                      onClick={handleLogout}
-                      className="px-4 py-2 text-sm font-medium bg-red-500 hover:bg-red-400 rounded-full flex items-center space-x-2 transition"
-                      title="Logout"
+                    <button
+                      className="px-4 py-2 text-sm font-medium bg-gray-700 hover:bg-gray-600 rounded-full flex items-center space-x-2 transition"
+                      onClick={handleEditProfile}
                     >
-                      <FaSignOutAlt className="w-4 h-4" />
-                      <span>Logout</span>
+                      <FaUserEdit className="w-4 h-4" />
+                      <span>Edit Profile</span>
                     </button>
                   </>
                 ) : (
@@ -225,9 +199,8 @@ export default function ProfilePage() {
         <div className="p-4 md:p-8 mt-16 md:mt-10">
           {isLoading ? (
             // <p>Loading profile...</p>
-            <ProfileInfoSkeleton/>
-          ) : 
-          error ? (
+            <ProfileInfoSkeleton />
+          ) : error ? (
             <p className="text-red-500">Error loading profile</p>
           ) : (
             <>
@@ -259,6 +232,19 @@ export default function ProfilePage() {
                   Following
                 </div>
               </div>
+              {/* Logout Button for Medium and Larger Screens */}
+              {authUser?._id === user?._id && (
+                <div className="mt-4 flex space-x-2 md:hidden">
+                  <button
+                    onClick={handleLogout}
+                    className="px-4 py-2 text-sm font-medium bg-red-500 hover:bg-red-400 rounded-full flex items-center space-x-2 transition"
+                    title="Logout"
+                  >
+                    <FaSignOutAlt className="w-4 h-4" />
+                    <span>Logout</span>
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>
@@ -283,7 +269,9 @@ export default function ProfilePage() {
                 className={`p-3 flex-1 text-center rounded-lg ${
                   feedType === "Likes" ? "text-blue-500" : "text-gray-400"
                 } hover:bg-gray-700`}
-                onClick={() => {setFeedType("Likes")}}
+                onClick={() => {
+                  setFeedType("Likes");
+                }}
               >
                 Likes
               </button>
