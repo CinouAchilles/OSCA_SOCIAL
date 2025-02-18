@@ -36,6 +36,7 @@ export function useSaveTweet() {
       });
       // Optionally invalidate queries or update local state
       queryClient.invalidateQueries(["authUser"]);
+      queryClient.invalidateQueries(["savedPosts"]);
       queryClient.invalidateQueries(["Tweets"]);
     },
     onError: (error) => {

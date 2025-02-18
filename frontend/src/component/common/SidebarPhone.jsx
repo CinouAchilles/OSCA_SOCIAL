@@ -33,7 +33,7 @@ export default function SidebarPhone() {
       path: "/bookmarks",
       icon: <FaBookmark className="w-6 h-6" />,
       label: "Bookmarks",
-      disabled: true,
+      disabled: false,
     },
     {
       path: `/profile/${authUser?.username || ""}`,
@@ -60,8 +60,8 @@ export default function SidebarPhone() {
               onClick={() => handleUnavailablePage(item.label)}
               className={`p-2 rounded-lg transition ${
                 location.pathname === item.path
-                  ? "bg-gray-700"
-                  : "hover:bg-gray-700"
+                  ? "bg-gray-700 text-blue-400"
+                  : "hover:bg-gray-700 "
               }`}
             >
               {item.icon}
@@ -72,7 +72,7 @@ export default function SidebarPhone() {
               to={item.path}
               className={`p-2 rounded-lg transition ${
                 location.pathname === item.path
-                  ? "bg-gray-700"
+                  ? "bg-gray-700 text-blue-400"
                   : "hover:bg-gray-700"
               }`}
             >

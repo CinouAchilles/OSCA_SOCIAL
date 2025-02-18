@@ -3,7 +3,6 @@ import { FaBell, FaHeart, FaComment, FaUser, FaCheck } from "react-icons/fa";
 import NotificationSkeleton from "./NotificationSkeleton";
 import Sidebar from "../../component/common/Sidebar";
 import SidebarPhone from "../../component/common/SidebarPhone";
-import SettingsIcon from "@mui/icons-material/Settings";
 import toast, { Toaster } from "react-hot-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNowStrict } from "date-fns";
@@ -91,7 +90,7 @@ export default function NotificationsPage() {
   return (
     <div className="min-h-screen flex">
       <Sidebar />
-      <div className="min-h-screen bg-gray-900 text-white p-4 md:p-6 flex-1">
+      <div className="min-h-screen text-white p-4 md:p-6 flex-1">
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center space-x-2">
             <FaBell className="w-6 h-6" />

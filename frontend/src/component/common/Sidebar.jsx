@@ -23,28 +23,6 @@ export default function Sidebar() {
     queryKey: ["authUser"],
   });
 
-  // Logout mutation
-  // const { mutateAsync: logoutMutation } = useMutation({
-  //   mutationFn: async () => {
-  //     const res = await fetch("http://localhost:3000/api/auth/logout", {
-  //       method: "POST",
-  //       credentials: "include",
-  //     });
-  //     if (!res.ok) {
-  //       throw new Error("Failed to log out");
-  //     }
-  //     return res.json(); // Return the response data
-  //   },
-  //   onSuccess: () => {
-  //     queryClient.setQueryData(["authUser"], null);
-  //     queryClient.invalidateQueries(["authUser"]);
-  //     console.log("✅ User logged out");
-  //   },
-  //   onError: (error) => {
-  //     console.error("❌ Error logging out:", error.message);
-  //   },
-  // });
-
   // Logout function
   const handleLogout = async () => {
     try {
@@ -73,7 +51,7 @@ export default function Sidebar() {
     { path: "/", icon: <FaHome className="w-6 h-6" />, label: "Home", disabled: false },
     { path: "/explore", icon: <FaHashtag className="w-6 h-6" />, label: "Explore", disabled: true },
     { path: "/notifications", icon: <FaBell className="w-6 h-6" />, label: "Notifications", disabled: false },
-    { path: "/bookmarks", icon: <FaBookmark className="w-6 h-6" />, label: "Bookmarks", disabled: true },
+    { path: "/bookmarks", icon: <FaBookmark className="w-6 h-6" />, label: "Bookmarks", disabled: false },
     {
       path: `/profile/${authUser?.username || ""}`,
       icon: <FaUser className="w-6 h-6" />,
