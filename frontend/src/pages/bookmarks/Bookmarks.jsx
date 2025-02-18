@@ -9,10 +9,6 @@ import { FaBookmark } from "react-icons/fa"; // Importing the bookmark icon
 
 export default function Bookmarks() {
   const { getsavedtweets, isError, isLoading, error } = useGetAllSaved();
-  {
-    console.log(getsavedtweets);
-  }
-
   return (
     <div className="min-h-screen flex text-white bg-[#030712]">
       <Toaster />

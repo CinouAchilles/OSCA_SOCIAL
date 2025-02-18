@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import { FaUser, FaTimes, FaRegHeart } from "react-icons/fa";
 import { formatDistanceToNowStrict } from "date-fns";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 
@@ -63,6 +63,7 @@ export default function CommentDialog({ open, onClose, tweet }) {
       setComments((prev) => [...prev, data.comment]);
       setNewComment("");
       queryClient.invalidateQueries({ queryKey: ["tweets"] });
+      queryClient.invalidateQueries({ queryKey: ["savedPosts"] });
     },
 
     onError: (error) => {
@@ -106,6 +107,7 @@ export default function CommentDialog({ open, onClose, tweet }) {
       maxWidth="md"
       PaperProps={{ style: dialogStyles }}
     >
+      <Toaster/>
       {/* Dialog Header */}
       <DialogTitle sx={{ padding: "10px 20px" }}>
         <div className="flex items-center justify-between">

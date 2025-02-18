@@ -43,6 +43,8 @@ export default function RightPanel() {
         throw new Error(error.message || "Network error");
       }
     },
+    refetchInterval: 500000, 
+    refetchIntervalInBackground: true, 
   });
 
   // Get all users function

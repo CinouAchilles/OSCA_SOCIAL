@@ -46,5 +46,7 @@ export default function useFetchTweets(feedType = "forYou", username = null, use
     queryKey: ["tweets", feedType, username, userId], // Automatically re-fetches when any of these change
     queryFn: () => fetchTweets(feedType, username, userId),
     enabled: !!feedType, // Prevents unnecessary fetching
+    refetchInterval: 150000, // Refetches every 2 minutes 
+    refetchIntervalInBackground: true, // Keeps refetching even if the user is not interacting with the page
   });
 }
