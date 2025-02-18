@@ -9,28 +9,18 @@ import ImageModal from "./ImageModal";
 import { formatDistanceToNowStrict } from "date-fns";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
+import { useSaveTweet } from "../../hooks/useSaveTweet";
 
 export default function TweetFeed({ tweets = [], onDeleteTweet }) {
-  const [savedTweets, setSavedTweets] = useState({});
   const [selectedTweet, setSelectedTweet] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
 
   const { data: authUser } = useQuery({ queryKey: ["authUser"] });
+  const {saveTweet} = useSaveTweet();
+
+
   const handleSave = (tweetId) => {
-    // setSavedTweets((prev) => ({
-    //   ...prev,
-    //   [tweetId]: !prev[tweetId],
-    // }));
-    // toast.success(
-    //   savedTweets[tweetId] ? "Removed from saved tweets" : "Saved tweet",
-    //   {
-    //     style: { background: "#333", color: "#fff" },
-    //   }
-    // );
-    toast("Save feature coming soon!", {
-      icon: "💬",
-      style: { background: "#333", color: "#fff" },
-    });
+    saveTweet(tweetId);
   };
 
   const { mutate: deletePost } = useMutation({
@@ -128,15 +118,20 @@ export default function TweetFeed({ tweets = [], onDeleteTweet }) {
                 />
 
                 <button
-                  onClick={() => handleSave(tweet.id)}
+                  onClick={() => handleSave(tweet._id || tweet.id)}
                   className="flex items-center space-x-1 md:space-x-2 text-gray-400 hover:text-yellow-500 transition"
                 >
-                  {savedTweets[tweet.id] ? (
-                    <FaBookmark className="w-4 h-4 md:w-5 md:h-5 text-yellow-500" />
+                  {authUser.savedPosts.includes(tweet._id || tweet.id)  ? (
+                    <>
+                      <FaBookmark className="w-4 h-4 md:w-5 md:h-5 text-yellow-500" />
+                      <span className="text-sm md:text-base">UnSave</span>
+                    </>
                   ) : (
-                    <FaBookmark className="w-4 h-4 md:w-5 md:h-5" />
+                    <>
+                      <FaBookmark className="w-4 h-4 md:w-5 md:h-5" />  
+                      <span className="text-sm md:text-base">Save</span>
+                    </>
                   )}
-                  <span className="text-sm md:text-base">Save</span>
                 </button>
 
                 {authUser &&

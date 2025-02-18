@@ -3,6 +3,7 @@ import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import cloudinary from 'cloudinary'
 import Notification from "../models/notification.models.js";
+import Post from "../models/post.model.js";
 
 export const getUserProfile = async(req, res)=>{
     const {username} = req.params;
@@ -235,3 +236,39 @@ export const getAllUsers = async (req , res)=>{
         throw new Error(error.message);
     }
 }
+
+export const SavePost = async (req, res)=>{
+    try {
+      const userId = req.user._id.toString();
+      const { tweetId } = req.body;
+  
+      if(!tweetId) return res.status(400).json({error: "Post id is required"});
+      if(!userId) return res.status(400).json({error: "User id is required"});
+      if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(tweetId)) {
+        return res.status(400).json({ error: "Invalid User ID or Post ID" });
+      }
+  
+  
+      const post = await Post.findById(tweetId);
+      if(!post) return res.status(404).json({error: "Post not found"});
+      
+      const user = await User.findById(userId);
+      if (!user) return res.status(404).json({ error: "User not found" });
+  
+      const alreadySaved = user.savedPosts.includes(tweetId);
+  
+      if (alreadySaved) {
+        // Unsave the post
+        await User.updateOne({ _id: userId }, { $pull: { savedPosts: tweetId } });
+        res.status(200).json({ message: "Tweet unsaved successfully" });
+      } else {
+        // Save the post
+        await User.updateOne({ _id: userId }, { $push: { savedPosts: tweetId } });
+        res.status(201).json({ message: "Tweet saved successfully" });
+      }
+      
+    } catch (error) {
+      console.error("Error saving post:", error);
+      throw new Error(error.message || "Network error");
+    }
+  }

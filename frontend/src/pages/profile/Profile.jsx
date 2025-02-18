@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FaShare, FaSignOutAlt, FaUserEdit } from "react-icons/fa";
+import {  FaSignOutAlt, FaUserEdit } from "react-icons/fa";
 import Sidebar from "../../component/common/Sidebar";
 import SidebarPhone from "../../component/common/SidebarPhone";
 import toast, { Toaster } from "react-hot-toast";
