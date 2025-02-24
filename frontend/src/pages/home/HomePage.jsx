@@ -32,7 +32,6 @@ export default function HomePage() {
 
   const handleDeleteTweet = (tweetId) => {
     setTweets((prev) => prev.filter((tweet) => tweet.id !== tweetId));
-    console.log("Tweet to delete:", tweetId);
   };
 
   return (

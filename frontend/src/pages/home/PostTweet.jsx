@@ -33,7 +33,6 @@ export default function PostTweet({ onPostTweet }) {
           if(!res.ok){
             throw new Error(data.error || "Something went wrong");
           }
-          console.log("the created data: ", data)
           return data;
         } catch (error) {
           throw new Error(error.message || "Network Error");

@@ -7,13 +7,14 @@ import TweetImage from "../nessaseryFunc/TweetImage";
 import LikeButton from "../nessaseryFunc/LikeButton";
 import ImageModal from "./ImageModal";
 import { formatDistanceToNowStrict } from "date-fns";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { useSaveTweet } from "../../hooks/useSaveTweet";
 
 export default function TweetFeed({ tweets = [], onDeleteTweet }) {
   const [selectedTweet, setSelectedTweet] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
+  const queryClient = useQueryClient();
 
   const { data: authUser } = useQuery({ queryKey: ["authUser"] });
   const {saveTweet} = useSaveTweet();
@@ -49,6 +50,12 @@ export default function TweetFeed({ tweets = [], onDeleteTweet }) {
       toast.success("Tweet deleted successfully", {
         style: { background: "#333", color: "#fff" },
       });
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["getSeggested"] }),
+        queryClient.invalidateQueries({ queryKey: ["authUser"] }),
+        queryClient.invalidateQueries({ queryKey: ["userProfile"] }),
+        queryClient.invalidateQueries({ queryKey: ["tweets"] }),
+      ]);
       // Call the onDeleteTweet callback after the deletion is successful
       onDeleteTweet(idToDelete); // Pass the tweet ID to the parent
     },
@@ -137,7 +144,9 @@ export default function TweetFeed({ tweets = [], onDeleteTweet }) {
                 {authUser &&
                   authUser._id == (tweet.userId || tweet.user._id) && (
                     <button
-                      onClick={() => handleDelete(tweet.id)}
+                      onClick={() => {
+                        handleDelete( tweet._id || tweet.id)
+                      }}
                       className="flex items-center space-x-1 md:space-x-2 text-gray-400 hover:text-red-600 transition"
                     >
                       <FaTrash className="w-4 h-4 md:w-5 md:h-5" />
